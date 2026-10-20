@@ -1,0 +1,1318 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Laboratorio DINO Pacasmayo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: sitio de 7 vistas con cabecera blanca fija; bandas a todo el ancho (blanco / negro / rojo), contenido centrado a 1280px; el mapa ocupa una sección blanca completa */
+:root{
+  --red:#E30613; --red-dark:#B3000C; --red-soft:#F6B9BD;
+  --ink:#0A0A0A; --ink-2:#161616; --ink-3:#2A2A2A;
+  --white:#FFFFFF; --paper:#F6F5F4; --land:#ECEAE8; --line:#E4E2E0;
+  --muted:#5B5957; --muted-dark:#A9A6A3;
+  --font:Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --wrap:1280px; --hdr:84px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --step:polygon(0 0,100% 0,100% 100%,46% 100%,46% 54%,0 54%);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--white)}
+img{max-width:100%;display:block}
+a{color:var(--red)}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.015em}
+p{margin:0}
+button{font-family:var(--font)}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+
+/* ---------- Marca: el cuadro escalonado de Pacasmayo ---------- */
+.mark{display:inline-block;width:14px;height:14px;background:var(--red);clip-path:var(--step);flex:none}
+.mark-w{background:var(--white)}
+
+/* ---------- Botones ---------- */
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border:0;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;transition:color .3s,box-shadow .3s;isolation:isolate}
+.btn::before{content:"";position:absolute;inset:0;z-index:-1;transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ease)}
+.btn:hover::before{transform:scaleX(1);transform-origin:left}
+.btn svg{transition:transform .3s var(--ease)}
+.btn:hover svg{transform:translateX(5px)}
+.btn-red{background:var(--red);color:var(--white)}.btn-red::before{background:var(--ink)}.btn-red:hover{color:var(--white)}
+.btn-ink{background:var(--ink);color:var(--white)}.btn-ink::before{background:var(--red)}.btn-ink:hover{color:var(--white)}
+.btn-white{background:var(--white);color:var(--ink)}.btn-white::before{background:var(--ink)}.btn-white:hover{color:var(--white)}
+.btn-line{background:transparent;color:var(--white);box-shadow:inset 0 0 0 2px var(--white)}.btn-line::before{background:var(--white)}.btn-line:hover{color:var(--ink)}
+.btn-line-dark{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}.btn-line-dark::before{background:var(--ink)}.btn-line-dark:hover{color:var(--white)}
+
+/* ---------- Cabecera ---------- */
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--white);border-bottom:1px solid var(--line);transition:box-shadow .3s}
+.hdr.scrolled{box-shadow:0 8px 28px rgba(0,0,0,.08)}
+.hdr .wrap{height:var(--hdr);display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:16px;text-decoration:none;animation:slideIn .8s both var(--ease)}
+.brand .dino{height:40px;width:auto}
+.brand .sep{width:1px;height:30px;background:var(--line)}
+.brand .pac{height:22px;width:auto}
+@keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+.nav{display:flex;gap:26px}
+.nav a{position:relative;color:var(--ink);text-decoration:none;font-weight:700;font-size:15px;padding:10px 0}
+.nav a::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:3px;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform .35s var(--ease)}
+.nav a:hover::after,.nav a.on::after{transform:scaleX(1);transform-origin:left}
+.nav a.on{color:var(--red)}
+.hdr-cta{display:flex;align-items:center;gap:12px}
+.burger{display:none;width:48px;height:48px;border:0;background:var(--ink);cursor:pointer;position:relative}
+.burger span{position:absolute;left:13px;right:13px;height:2px;background:var(--white);transition:transform .3s,opacity .3s}
+.burger span:nth-child(1){top:16px}.burger span:nth-child(2){top:23px}.burger span:nth-child(3){top:30px}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mnav{position:fixed;top:calc(var(--hdr) + env(safe-area-inset-top,0px));left:0;right:0;bottom:0;z-index:45;background:var(--ink);padding:20px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;overflow-y:auto}
+.mnav a{color:var(--white);text-decoration:none;font-size:26px;font-weight:700;padding:14px 0;border-bottom:1px solid var(--ink-3);display:flex;align-items:center;justify-content:space-between;animation:mIn .4s both var(--ease)}
+.mnav a:nth-child(2){animation-delay:.04s}.mnav a:nth-child(3){animation-delay:.08s}.mnav a:nth-child(4){animation-delay:.12s}.mnav a:nth-child(5){animation-delay:.16s}.mnav a:nth-child(6){animation-delay:.2s}.mnav a:nth-child(7){animation-delay:.24s}
+.mnav a.on{color:var(--red)}
+@keyframes mIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:none}}
+@media (max-width:1200px){.nav{display:none}.burger{display:block}}
+@media (max-width:640px){.hdr-cta .btn{display:none}.brand .pac{height:18px}.brand .dino{height:34px}.brand{gap:12px}}
+
+/* ---------- Vistas y animación general ---------- */
+.page{animation:pageIn .6s both var(--ease)}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.rise{animation:pageIn .8s both var(--ease)}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}
+@supports (animation-timeline: view()){
+  .rv{animation:rv linear both;animation-timeline:view();animation-range:entry 0% entry 75%}
+  .rv-l{animation:rvL linear both;animation-timeline:view();animation-range:entry 0% entry 75%}
+  .rv-s{animation:rvS linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
+}
+@keyframes rv{from{opacity:0;transform:translateY(48px)}to{opacity:1;transform:none}}
+@keyframes rvL{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
+@keyframes rvS{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+
+.sec{padding-block:100px}
+.sec-sm{padding-block:64px}
+.band-ink{background:var(--ink);color:var(--white)}
+.band-red{background:var(--red);color:var(--white)}
+.band-paper{background:var(--paper)}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.kicker::before{content:"";width:14px;height:14px;background:currentColor;clip-path:var(--step)}
+.band-red .kicker{color:var(--white)}
+.h-xl{font-size:clamp(42px,6.4vw,84px);line-height:1;font-weight:700}
+.h-lg{font-size:clamp(32px,4.4vw,54px);line-height:1.05;font-weight:700}
+.h-md{font-size:clamp(24px,2.8vw,34px);line-height:1.15;font-weight:700}
+.lead{font-size:18px;line-height:1.65;color:var(--muted);max-width:58ch}
+.band-ink .lead{color:var(--muted-dark)}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px 48px;margin-bottom:48px}
+.head > div{display:flex;flex-direction:column;gap:16px;max-width:760px;min-width:0}
+.crumb{font-size:13px;color:var(--muted-dark)}
+.crumb a{color:var(--muted-dark);text-decoration:none}
+.crumb a:hover{color:var(--white)}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;background:var(--ink);color:var(--white);overflow:hidden}
+.hero-slides{position:absolute;inset:0}
+.hero-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease}
+.hero-slide.on{opacity:1}
+.hero-slide img{width:100%;height:100%;object-fit:cover;transform:scale(1.05);transition:transform 8s linear}
+.hero-slide.on img{transform:scale(1.15)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,10,10,.95) 0%,rgba(10,10,10,.8) 42%,rgba(10,10,10,.2) 100%);z-index:1}
+.hero-step{position:absolute;right:-60px;bottom:-60px;width:min(42vw,520px);aspect-ratio:1;background:var(--red);clip-path:var(--step);z-index:1;opacity:.92;animation:stepIn 1.4s .3s both var(--ease)}
+.hero-step2{position:absolute;right:calc(min(42vw,520px) - 20px);bottom:120px;width:56px;aspect-ratio:1;background:var(--white);clip-path:var(--step);z-index:1;animation:stepIn 1s .9s both var(--ease),float 6s 2s ease-in-out infinite}
+@keyframes stepIn{from{transform:translate(80px,80px) scale(.6);opacity:0}to{transform:none;opacity:.92}}
+@keyframes float{50%{transform:translateY(-14px)}}
+@media (max-width:760px){.hero-step{width:220px;right:-50px;bottom:-50px;opacity:.85}.hero-step2{display:none}}
+.hero .wrap{position:relative;z-index:2;padding-block:110px 150px;display:flex;flex-direction:column;gap:28px;min-height:680px;justify-content:center}
+.lines{display:flex;flex-direction:column}
+.line{display:block;overflow:hidden;padding-bottom:.06em}
+.line > span{display:block;animation:lineUp 1s both var(--ease)}
+.line:nth-child(2) > span{animation-delay:.12s}
+.line:nth-child(3) > span{animation-delay:.24s}
+@keyframes lineUp{from{transform:translateY(105%)}to{transform:none}}
+.hero .red{color:var(--red)}
+.hero p{font-size:20px;max-width:520px;color:#E9E7E5}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+.hero-ctrl{position:absolute;left:0;right:0;bottom:0;z-index:2}
+.hero-ctrl .wrap{min-height:0;padding-block:0 108px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.hero-dots{display:flex;gap:28px;flex-wrap:wrap}
+.hero-dot{background:none;border:0;border-top:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.6);font-size:14px;font-weight:700;cursor:pointer;padding:14px 0 4px;position:relative;text-align:left;min-width:150px}
+.hero-dot::before{content:"";position:absolute;left:0;right:0;top:-2px;height:3px;background:var(--red);transform:scaleX(0);transform-origin:left}
+.hero-dot.on{color:var(--white)}
+.hero-dot.on::before{animation:fill 6s linear both}
+.hero.paused .hero-dot.on::before{animation-play-state:paused}
+@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.hero-arrows{display:flex;gap:8px}
+.arrow{width:48px;height:48px;border:1px solid rgba(255,255,255,.45);background:transparent;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .25s,border-color .25s}
+.arrow:hover{background:var(--red);border-color:var(--red)}
+
+/* ---------- Cifras (tarjeta superpuesta) ---------- */
+.stats-wrap{position:relative;z-index:5;margin-top:-72px}
+.stats{background:var(--white);box-shadow:0 24px 60px rgba(0,0,0,.14);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:4px solid var(--red);animation:pageIn .9s .5s both var(--ease)}
+.stat{padding:32px 30px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.stat:first-child{border-left:0}
+.stat b{font-size:clamp(34px,3.6vw,48px);line-height:1;color:var(--red);font-variant-numeric:tabular-nums}
+.stat span{font-size:15px;font-weight:700}
+@media (max-width:860px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* ---------- Franja de materiales ---------- */
+.marquee{background:var(--red);color:var(--white);overflow:hidden;padding-block:22px}
+.mq-track{display:flex;width:max-content;animation:mq 38s linear infinite}
+.marquee:hover .mq-track{animation-play-state:paused}
+.mq-track span{display:flex;align-items:center;gap:36px;padding-right:36px;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* ---------- Servicios ---------- */
+.svc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+@media (max-width:960px){.svc-grid{grid-template-columns:1fr}}
+.svc{position:relative;display:flex;flex-direction:column;text-decoration:none;color:var(--ink);background:var(--white);border:1px solid var(--line);transition:transform .45s var(--ease),box-shadow .45s;overflow:hidden}
+.svc::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.svc:hover{transform:translateY(-8px);box-shadow:0 24px 48px rgba(0,0,0,.14);color:var(--ink)}
+.svc:hover::after{transform:scaleX(1)}
+.svc-img{aspect-ratio:4/3;overflow:hidden;position:relative;max-width:100%}
+.svc-img img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
+.svc:hover .svc-img img{transform:scale(1.08)}
+.svc-num{position:absolute;right:0;top:0;background:var(--white);color:var(--ink);font-size:14px;font-weight:700;padding:10px 14px}
+.svc-tag{position:absolute;left:0;bottom:0;background:var(--red);color:var(--white);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:9px 13px}
+.svc-body{padding:28px 28px 32px;display:flex;flex-direction:column;gap:10px;flex:1}
+.svc-body h3{font-size:25px}
+.svc-body p{color:var(--muted)}
+.svc-more{margin-top:auto;padding-top:14px;display:flex;align-items:center;gap:8px;font-weight:700;color:var(--red)}
+.svc-more svg{transition:transform .3s var(--ease)}
+.svc:hover .svc-more svg{transform:translateX(6px)}
+
+/* ---------- Cobertura (mapa grande en blanco) ---------- */
+.cov-sec{background:var(--white);padding-block:100px}
+.cov-body{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:40px;align-items:stretch}
+@media (max-width:980px){.cov-body{grid-template-columns:1fr}}
+.cov-side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.sede-btn{background:var(--white);border:1px solid var(--line);padding:20px 22px;text-align:left;cursor:pointer;color:var(--ink);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;position:relative;transition:border-color .3s,box-shadow .3s,transform .3s var(--ease)}
+.sede-btn::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:5px;background:var(--red);transform:scaleY(0);transform-origin:top;transition:transform .35s var(--ease)}
+.sede-btn:hover{border-color:var(--ink);transform:translateX(4px)}
+.sede-btn.on{border-color:var(--ink);box-shadow:0 14px 32px rgba(0,0,0,.1)}
+.sede-btn.on::before{transform:scaleY(1)}
+.sede-btn b{font-size:22px}
+.sede-btn small{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);align-self:center}
+.sede-btn.on small{color:var(--red)}
+.sede-btn span{grid-column:1/-1;font-size:14px;color:var(--muted)}
+.legend{display:flex;flex-direction:column;gap:10px;font-size:14px;margin-top:10px;padding-top:18px;border-top:1px solid var(--line)}
+.legend span{display:flex;align-items:center;gap:10px}
+.legend i{width:18px;height:18px;display:inline-block;flex:none}
+.legend .route-i{height:4px;background:repeating-linear-gradient(90deg,var(--ink) 0 6px,transparent 6px 10px)}
+.map-stage{position:relative;min-height:clamp(560px,82vh,880px);background:var(--white)}
+.pe-map{position:absolute;inset:0;width:100%;height:100%;display:block}
+.map-tools{position:absolute;right:0;top:0;z-index:3;display:flex;gap:0;border:2px solid var(--ink);background:var(--white)}
+.map-tools button{border:0;background:var(--white);color:var(--ink);font-size:13px;font-weight:700;padding:10px 14px;cursor:pointer;transition:background .25s,color .25s}
+.map-tools button:hover{background:var(--paper)}
+.map-tools button.on{background:var(--ink);color:var(--white)}
+.rg{fill:var(--land);stroke:var(--white);stroke-width:1.1;stroke-linejoin:round;transition:fill .45s ease}
+.rg.near{fill:var(--red-soft)}
+.rg.core{fill:var(--red)}
+.rg:hover{fill:#D7D3D0}.rg.near:hover{fill:#EF8D94}.rg.core:hover{fill:var(--red-dark)}
+.rg.sel{fill:var(--ink)}
+.entering .rg{transition-delay:calc(var(--i) * 70ms)}
+.pre .rg.near,.pre .rg.core{fill:var(--land)}
+.route-base{fill:none;stroke:var(--ink);stroke-opacity:.12;stroke-width:5;stroke-linecap:round;pointer-events:none}
+.route-draw{fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset 1.8s .7s var(--ease);pointer-events:none}
+.pre .route-draw{stroke-dashoffset:1}
+.route-dash{fill:none;stroke:var(--white);stroke-width:1.9;stroke-dasharray:3 6;animation:dash 1s linear infinite;pointer-events:none}
+@keyframes dash{to{stroke-dashoffset:-18}}
+.stop{pointer-events:none}
+.stop circle{fill:var(--white);stroke:var(--ink);stroke-width:1.6}
+.stop text{fill:var(--ink);font:700 8.5px Arial,sans-serif;text-anchor:end;paint-order:stroke;stroke:var(--white);stroke-width:3px;stroke-linejoin:round}
+.pin{cursor:pointer}
+.pin-in{transition:opacity .5s,transform .7s cubic-bezier(.3,1.6,.5,1);transition-delay:calc(1.2s + var(--k) * .18s)}
+.pre .pin-in{opacity:0;transform:translateY(-18px)}
+.pin .halo{fill:var(--red);opacity:.16}
+.pin .dot{fill:var(--ink);stroke:var(--white);stroke-width:2.2;transition:fill .25s}
+.pin.on .dot,.pin:hover .dot{fill:var(--red)}
+.pin .pulse{fill:none;stroke:var(--red);stroke-width:1.6;transform-box:fill-box;transform-origin:center;animation:pulse 2.2s ease-out infinite}
+.pin text{fill:var(--ink);font:700 11.5px Arial,sans-serif;paint-order:stroke;stroke:var(--white);stroke-width:3.5px;stroke-linejoin:round}
+@keyframes pulse{from{transform:scale(1);opacity:.9}to{transform:scale(3.4);opacity:0}}
+.truck{pointer-events:none;transition:opacity .6s 2s}
+.pre .truck{opacity:0}
+.maptip{position:absolute;z-index:4;pointer-events:none;background:var(--ink);color:var(--white);padding:9px 13px;font-size:13px;line-height:1.35;box-shadow:0 10px 24px rgba(0,0,0,.25);transform:translate(-50%,calc(-100% - 16px));white-space:nowrap;border-left:4px solid var(--red)}
+.maptip b{display:block;font-size:14px}
+.map-info{position:absolute;left:0;bottom:0;z-index:3;width:min(340px,100%);background:var(--white);border:1px solid var(--line);border-top:4px solid var(--red);box-shadow:0 18px 40px rgba(0,0,0,.12);padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+.map-info .mi-k{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.map-info b{font-size:26px;line-height:1.1}
+.map-info p{font-size:14px;color:var(--muted)}
+.map-info a{font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:6px;margin-top:4px}
+.map-info.swap{animation:pageIn .45s both var(--ease)}
+.map-live{position:absolute;right:0;bottom:0;z-index:3;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--white);padding:10px 14px;font-size:13px;font-weight:700}
+.map-live i{width:9px;height:9px;border-radius:50%;background:var(--red);animation:blink 1.3s ease-in-out infinite}
+@keyframes blink{50%{opacity:.2}}
+@media (max-width:640px){
+  .map-stage{min-height:auto;display:flex;flex-direction:column;gap:12px}
+  .pe-map{position:relative;height:auto;aspect-ratio:457/668}
+  .map-tools{position:static;align-self:flex-start}
+  .map-info,.map-live{position:static;width:auto}
+}
+
+/* ---------- Carretera con camioneta ---------- */
+.road{position:relative;height:150px;background:var(--ink);overflow:hidden}
+.road::before{content:"";position:absolute;left:0;right:0;bottom:26px;height:4px;background:repeating-linear-gradient(90deg,var(--white) 0 46px,transparent 46px 92px);animation:lane .9s linear infinite}
+.road::after{content:"";position:absolute;left:0;right:0;bottom:0;height:12px;background:var(--red)}
+@keyframes lane{to{background-position:-92px 0}}
+.road-txt{position:absolute;left:0;right:0;top:22px;z-index:2}
+.road-txt .wrap{display:flex;justify-content:space-between;gap:16px;color:var(--muted-dark);font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.road-txt .wrap span{display:flex;align-items:center;gap:8px}
+.van{position:absolute;bottom:32px;left:0;width:170px;animation:drive 13s linear infinite}
+.van .body{animation:bump .5s ease-in-out infinite}
+.van .wh{transform-box:fill-box;transform-origin:center;animation:spin .55s linear infinite}
+@keyframes drive{from{transform:translateX(-190px)}to{transform:translateX(calc(100vw + 20px))}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bump{50%{transform:translateY(-1.5px)}}
+
+/* ---------- Proceso ---------- */
+.steps{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:28px;position:relative}
+.steps::before{content:"";position:absolute;left:0;right:0;top:29px;height:2px;background:var(--red);transform-origin:left;animation:fill 1.4s .2s both var(--ease)}
+@supports (animation-timeline: view()){.steps::before{animation:fill linear both;animation-timeline:view();animation-range:entry 20% cover 45%}}
+.step{position:relative;display:flex;flex-direction:column;gap:10px}
+.step-n{width:60px;height:60px;background:var(--white);color:var(--ink);border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;transition:background .3s,color .3s,border-color .3s}
+.step:hover .step-n{background:var(--red);border-color:var(--red);color:var(--white)}
+.band-ink .step-n{background:var(--ink);color:var(--white);border-color:var(--red)}
+.band-paper .step-n{background:var(--paper)}
+.band-red .steps::before{background:var(--white)}
+.band-red .step-n{background:var(--red);border-color:var(--white);color:var(--white)}
+.band-red .step:hover .step-n{background:var(--white);color:var(--red)}
+.step h3{font-size:20px;margin-top:8px}
+.step p{font-size:15px;color:var(--muted)}
+.band-ink .step p{color:var(--muted-dark)}
+.band-red .step p{color:#FFE3E5}
+@media (max-width:820px){.steps{grid-template-columns:1fr;gap:30px}.steps::before{left:29px;right:auto;width:2px;height:auto;bottom:0;top:0;transform-origin:top}.step{padding-left:82px;min-height:60px}.step-n{position:absolute;left:0;top:0}.step h3{margin-top:0}}
+
+/* ---------- Split / fotos ---------- */
+.split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:72px;align-items:center}
+@media (max-width:960px){.split{grid-template-columns:1fr;gap:44px}}
+.split-txt{display:flex;flex-direction:column;gap:20px;min-width:0}
+.photo{position:relative;max-width:100%}
+.photo img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.photo-badge{position:absolute;left:-1px;bottom:-1px;background:var(--red);color:var(--white);padding:18px 22px;display:flex;flex-direction:column}
+.photo-badge b{font-size:36px;line-height:1}
+.photo-badge span{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.photo-frame::after{content:"";position:absolute;right:-18px;top:-18px;width:96px;height:96px;background:var(--red);clip-path:var(--step);z-index:-1}
+.photo-frame{isolation:isolate}
+
+/* ---------- Encabezados internos ---------- */
+.phead{background:var(--ink);color:var(--white);position:relative;overflow:hidden}
+.phead-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:440px}
+.phead-txt{display:flex;flex-direction:column;justify-content:center;gap:18px;padding-block:72px;padding-right:48px;min-width:0;position:relative;z-index:2}
+.phead-img{position:relative;min-height:320px;overflow:hidden}
+.phead-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:zoomOut 1.6s both var(--ease)}
+.phead-img::after{content:"";position:absolute;left:0;bottom:0;width:120px;height:120px;background:var(--red);clip-path:var(--step);animation:stepIn 1s .4s both var(--ease)}
+@keyframes zoomOut{from{transform:scale(1.15)}to{transform:none}}
+@media (max-width:960px){.phead-grid{grid-template-columns:1fr}.phead-txt{padding-right:0;padding-block:52px}}
+.phead-full{background:var(--ink);color:var(--white);position:relative;overflow:hidden}
+.phead-full > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.42;animation:zoomOut 1.8s both var(--ease)}
+.phead-full .wrap{position:relative;padding-block:120px 100px;display:flex;flex-direction:column;gap:18px}
+.chip-ac{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;border:2px solid var(--red);padding:9px 14px;font-weight:700;font-size:14px}
+
+/* ---------- Listas de valores ---------- */
+.vals{display:flex;flex-direction:column}
+.val{display:grid;grid-template-columns:48px minmax(0,1fr);gap:18px;padding:20px 0;border-top:1px solid var(--line);transition:padding .3s var(--ease)}
+.val:last-child{border-bottom:1px solid var(--line)}
+.val:hover{padding-left:8px}
+.val-ic{width:48px;height:48px;background:var(--ink);color:var(--white);display:flex;align-items:center;justify-content:center;transition:background .3s}
+.val:hover .val-ic{background:var(--red)}
+.val b{display:block;font-size:17px}
+.val span{color:var(--muted);font-size:15px}
+.why{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--ink-3);border:1px solid var(--ink-3)}
+.why div{background:var(--ink);padding:30px 26px;display:flex;flex-direction:column;gap:16px;transition:background .3s}
+.why div:hover{background:var(--red)}
+.why div:hover svg{color:var(--white)}
+.why svg{color:var(--red);transition:color .3s}
+.why b{font-size:17px}
+@media (max-width:960px){.why{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.why{grid-template-columns:1fr}}
+
+/* ---------- Catálogo de ensayos ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:28px}
+.fchip{border:1px solid var(--ink);background:var(--white);color:var(--ink);font-weight:700;font-size:14px;padding:10px 16px;cursor:pointer;transition:background .2s,color .2s}
+.fchip:hover{background:var(--paper)}
+.fchip.on{background:var(--ink);color:var(--white)}
+.search{margin-left:auto;position:relative;flex:0 1 300px}
+.search input{width:100%;height:46px;border:1px solid var(--line);padding:0 14px 0 42px;font-family:var(--font);font-size:15px;background:var(--white);color:var(--ink)}
+.search input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(227,6,19,.14)}
+.search svg{position:absolute;left:13px;top:13px;color:var(--muted)}
+@media (max-width:700px){.search{margin-left:0;flex:1 1 100%}}
+.count{font-size:14px;color:var(--muted);margin-bottom:16px}
+.cat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:1000px){.cat{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.cat{grid-template-columns:1fr}}
+.test{border:1px solid var(--line);background:var(--white);padding:24px;display:flex;flex-direction:column;gap:10px;transition:border-color .25s,transform .35s var(--ease),box-shadow .35s;animation:pageIn .45s both}
+.test:hover{border-color:var(--ink);transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,.1)}
+.test-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.test-mat{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.badge{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;white-space:nowrap}
+.badge-ac{background:var(--red);color:var(--white)}
+.badge-es{background:var(--ink);color:var(--white)}
+.test h3{font-size:19px}
+.test p{font-size:14px;color:var(--muted)}
+.test button{margin-top:auto;align-self:flex-start;background:none;border:0;padding:6px 0;font-weight:700;color:var(--red);cursor:pointer;display:flex;align-items:center;gap:6px}
+.test button:hover{color:var(--red-dark)}
+.test button svg{transition:transform .3s var(--ease)}
+.test:hover button svg{transform:translateX(4px)}
+.empty{grid-column:1/-1;border:1px dashed var(--muted);padding:40px;text-align:center;color:var(--muted)}
+.methods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:700px){.methods{grid-template-columns:1fr}}
+.method{background:var(--ink-2);border-left:4px solid var(--red);padding:26px 28px;display:flex;flex-direction:column;gap:6px;transition:background .3s}
+.method:hover{background:var(--ink-3)}
+.method b{font-size:22px}
+.method span{color:var(--muted-dark)}
+
+/* ---------- Móvil ---------- */
+.field{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+@media (max-width:960px){.field{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.field{grid-template-columns:1fr}}
+.fitem{background:var(--white);padding:32px 28px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;transition:color .35s}
+.fitem::before{content:"";position:absolute;inset:0;background:var(--ink);transform:translateY(101%);transition:transform .45s var(--ease);z-index:0}
+.fitem > *{position:relative;z-index:1}
+.fitem:hover{color:var(--white)}
+.fitem:hover::before{transform:none}
+.fitem:hover p{color:var(--muted-dark)}
+.fitem svg{color:var(--red)}
+.fitem h3{font-size:20px}
+.fitem p{font-size:15px;color:var(--muted);transition:color .35s}
+
+/* ---------- Metrología ---------- */
+.calib{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:1000px){.calib{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.calib{grid-template-columns:1fr}}
+.cbox{border:1px solid var(--line);border-top:4px solid var(--red);padding:26px;display:flex;flex-direction:column;gap:14px;background:var(--white);transition:transform .35s var(--ease),box-shadow .35s}
+.cbox:hover{transform:translateY(-6px);box-shadow:0 16px 32px rgba(0,0,0,.1)}
+.cbox h3{font-size:21px}
+.cbox ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+.cbox li{padding:9px 0;border-top:1px solid var(--line);font-size:15px;display:flex;gap:10px;align-items:center}
+.cbox li::before{content:"";width:9px;height:9px;background:var(--red);clip-path:var(--step);flex:none}
+.seg{display:inline-flex;border:2px solid var(--white);margin-bottom:40px}
+.seg button{background:transparent;color:var(--white);border:0;padding:12px 24px;font-weight:700;font-size:15px;cursor:pointer;transition:background .25s,color .25s}
+.seg button.on{background:var(--white);color:var(--ink)}
+.why-cal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+@media (max-width:820px){.why-cal{grid-template-columns:1fr}}
+.why-cal div{display:flex;gap:14px;align-items:flex-start;font-size:18px;font-weight:700;padding:24px;border:1px solid var(--line)}
+.why-cal svg{flex:none}
+
+/* ---------- Contacto / formulario ---------- */
+.contact{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:980px){.contact{grid-template-columns:1fr}}
+.formcard{border:1px solid var(--line);border-top:4px solid var(--red);background:var(--white);padding:38px;min-width:0;box-shadow:0 20px 50px rgba(0,0,0,.06)}
+@media (max-width:560px){.formcard{padding:24px 18px}}
+.progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:32px}
+.pstep{display:flex;flex-direction:column;gap:8px;font-size:13px;font-weight:700;color:var(--muted)}
+.pstep i{display:block;height:4px;background:var(--line);position:relative;overflow:hidden}
+.pstep i::after{content:"";position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.pstep.done i::after,.pstep.on i::after{transform:scaleX(1)}
+.pstep.on,.pstep.done{color:var(--ink)}
+.fstep{display:flex;flex-direction:column;gap:22px;animation:pageIn .45s both var(--ease)}
+.fstep h2{font-size:26px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 20px}
+@media (max-width:620px){.grid2{grid-template-columns:1fr}}
+.full{grid-column:1/-1}
+.fld{display:flex;flex-direction:column;gap:7px;min-width:0}
+.fld label,.fld .lbl{font-size:13px;font-weight:700}
+.fld label em{font-style:normal;color:var(--red)}
+.inp{width:100%;height:52px;border:1px solid #C9C6C3;background:var(--white);color:var(--ink);padding:0 14px;font-family:var(--font);font-size:16px;transition:border-color .2s,box-shadow .2s;border-radius:0}
+.inp:hover{border-color:var(--ink)}
+.inp:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(227,6,19,.14)}
+textarea.inp{height:auto;min-height:120px;padding:12px 14px;resize:vertical;line-height:1.5}
+.fld.err .inp{border-color:var(--red);background:#FFF5F5;animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.msg{font-size:13px;color:var(--red);font-weight:700}
+.msg:empty{display:none}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:620px){.opts{grid-template-columns:1fr}}
+.opt{position:relative;border:1px solid #C9C6C3;padding:20px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:border-color .2s,background .25s,color .25s,transform .25s}
+.opt:hover{border-color:var(--ink);transform:translateY(-2px)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt b{font-size:16px}
+.opt span{font-size:13px;color:var(--muted)}
+.opt:has(input:checked){background:var(--ink);border-color:var(--ink);color:var(--white)}
+.opt:has(input:checked) span{color:var(--muted-dark)}
+.opt:has(input:checked)::after{content:"";position:absolute;right:14px;top:14px;width:14px;height:14px;background:var(--red);clip-path:var(--step)}
+.opt:has(input:focus-visible){outline:3px solid var(--red);outline-offset:2px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer}
+.check input{accent-color:var(--red);width:18px;height:18px;margin:1px 0 0;flex:none}
+.factions{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:24px}
+.done-box{display:flex;flex-direction:column;gap:18px;animation:pageIn .5s both var(--ease)}
+.done-ic{width:68px;height:68px;background:var(--red);color:var(--white);display:flex;align-items:center;justify-content:center;animation:pop .6s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+.code{font-size:15px;font-weight:700;background:var(--ink);color:var(--white);padding:8px 12px;align-self:flex-start;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.summary{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);border-top:1px solid var(--line);margin:0}
+.summary dt,.summary dd{margin:0;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.summary dt{color:var(--muted);padding-right:24px;font-weight:700}
+.summary dd{overflow-wrap:anywhere}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--line);padding-left:12px}
+.cside{display:flex;flex-direction:column;gap:16px}
+.cbox-ink{background:var(--ink);color:var(--white);padding:30px;display:flex;flex-direction:column;gap:22px}
+.cline{display:flex;flex-direction:column;gap:8px}
+.cline + .cline{border-top:1px solid var(--ink-3);padding-top:20px}
+.cline small{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--red)}
+.crow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.crow span{font-size:18px;font-weight:700;overflow-wrap:anywhere;user-select:all}
+.crow span.mail{font-size:15px;font-weight:400}
+.copy{flex:none;border:1px solid var(--ink-3);background:transparent;color:var(--muted-dark);font-size:12px;font-weight:700;padding:7px 11px;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.copy:hover{background:var(--white);color:var(--ink);border-color:var(--white)}
+.copy.ok{background:var(--red);border-color:var(--red);color:var(--white)}
+.cbox-line{border:1px solid var(--line);padding:26px;display:flex;flex-direction:column;gap:14px}
+.cbox-line h3{font-size:18px}
+.mini-sede b{display:block;color:var(--red)}
+.mini-sede span{font-size:14px;color:var(--muted)}
+
+/* ---------- CTA y pie ---------- */
+.cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:28px;position:relative}
+.cta h2{max-width:760px}
+.cta-step{position:absolute;right:-40px;top:-90px;width:180px;aspect-ratio:1;background:rgba(255,255,255,.12);clip-path:var(--step);pointer-events:none;animation:float 7s ease-in-out infinite}
+.band-red.sec-sm{overflow:hidden}
+.foot{background:var(--ink);color:var(--white)}
+.foot-top{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));gap:40px;padding-block:72px 52px}
+@media (max-width:960px){.foot-top{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.foot-top{grid-template-columns:1fr}}
+.foot-logos{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.foot-logos .dino{height:44px;width:auto}
+.foot-logos .pac{height:24px;width:auto}
+.foot h4{margin:0 0 16px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dark)}
+.foot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+.foot a{color:var(--white);text-decoration:none;transition:color .2s}
+.foot a:hover{color:var(--red)}
+.foot p{color:var(--muted-dark);font-size:14px;max-width:36ch}
+.foot-bot{border-top:1px solid var(--ink-3);padding-block:22px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted-dark)}
+
+.totop{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:40;width:50px;height:50px;border:0;background:var(--red);color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s;box-shadow:0 10px 24px rgba(0,0,0,.22);animation:pop .4s both}
+.totop[hidden]{display:none!important}
+.totop:hover{background:var(--ink)}
+.scrollbar{position:fixed;left:0;top:env(safe-area-inset-top,0px);height:3px;background:var(--red);z-index:55;width:100%;transform-origin:left;transform:scaleX(0)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--white);padding:12px 18px;font-size:14px;font-weight:700;z-index:70;animation:pageIn .3s both;border-left:4px solid var(--red)}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="scrollbar" id="scrollbar" aria-hidden="true"></div>
+
+<header class="hdr" id="hdr">
+  <div class="wrap">
+    <a class="brand" href="#inicio" aria-label="Laboratorio de Servicios DINO Pacasmayo, ir al inicio">
+      <img class="dino" src="img/logo-dino.png" alt="DINO">
+      <span class="sep" aria-hidden="true"></span>
+      <img class="pac" src="img/logo-pacasmayo.png" alt="Pacasmayo">
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#inicio" data-r="inicio">Inicio</a>
+      <a href="#nosotros" data-r="nosotros">Nosotros</a>
+      <a href="#ensayos" data-r="ensayos">Ensayos</a>
+      <a href="#movil" data-r="movil">Laboratorio móvil</a>
+      <a href="#metrologia" data-r="metrologia">Metrología</a>
+      <a href="#cobertura" data-r="cobertura">Cobertura</a>
+      <a href="#contacto" data-r="contacto">Contacto</a>
+    </nav>
+    <div class="hdr-cta">
+      <a class="btn btn-red" href="#contacto" style="min-height:46px;padding:0 22px">Solicitar cotización</a>
+      <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<nav class="mnav" id="mnav" aria-label="Menú móvil" hidden>
+  <a href="#inicio" data-r="inicio">Inicio <span class="mark"></span></a>
+  <a href="#nosotros" data-r="nosotros">Nosotros <span class="mark"></span></a>
+  <a href="#ensayos" data-r="ensayos">Ensayos <span class="mark"></span></a>
+  <a href="#movil" data-r="movil">Laboratorio móvil <span class="mark"></span></a>
+  <a href="#metrologia" data-r="metrologia">Metrología <span class="mark"></span></a>
+  <a href="#cobertura" data-r="cobertura">Cobertura <span class="mark"></span></a>
+  <a href="#contacto" data-r="contacto">Contacto <span class="mark"></span></a>
+</nav>
+
+<main id="app">
+
+<!-- ================= INICIO ================= -->
+<section class="page" data-page="inicio">
+  <div class="hero" id="hero">
+    <div class="hero-slides">
+      <div class="hero-slide on"><img src="img/prensa-control.jpg" alt="Técnico realizando un ensayo de compresión de concreto"></div>
+      <div class="hero-slide"><img src="img/campo.jpg" alt="Extracción de diamantinas en obra con el laboratorio móvil"></div>
+      <div class="hero-slide"><img src="img/metrologia.jpg" alt="Balanza analítica y patrones de calibración"></div>
+    </div>
+    <div class="hero-step" aria-hidden="true"></div>
+    <div class="hero-step2" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="kicker rise">Acreditado por INACAL · LE-214</span>
+      <h1 class="h-xl lines">
+        <span class="line"><span>Soluciones</span></span>
+        <span class="line"><span>técnicas y</span></span>
+        <span class="line"><span class="red">sostenibilidad</span></span>
+      </h1>
+      <p class="rise d3">Ensayos, metrología y laboratorio móvil con resultados confiables y trazables.</p>
+      <div class="hero-actions rise d4">
+        <a class="btn btn-red" href="#contacto">Solicitar cotización <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a>
+        <a class="btn btn-line" href="#cobertura">Ver cobertura</a>
+      </div>
+    </div>
+    <div class="hero-ctrl">
+      <div class="wrap">
+        <div class="hero-dots" role="tablist" aria-label="Imágenes destacadas">
+          <button class="hero-dot on" data-i="0" role="tab" aria-selected="true">Laboratorio de Ensayos</button>
+          <button class="hero-dot" data-i="1" role="tab" aria-selected="false">Laboratorio Móvil</button>
+          <button class="hero-dot" data-i="2" role="tab" aria-selected="false">Metrología</button>
+        </div>
+        <div class="hero-arrows">
+          <button class="arrow" id="prev" aria-label="Imagen anterior"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4L6 9l5 5"/></svg></button>
+          <button class="arrow" id="next" aria-label="Imagen siguiente"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 4l5 5-5 5"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-wrap">
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat"><b><span class="count-up" data-to="15">15</span></b><span>Años de experiencia</span></div>
+        <div class="stat"><b>LE-214</b><span>Registro INACAL</span></div>
+        <div class="stat"><b><span class="count-up" data-to="3">3</span></b><span>Sedes en el norte</span></div>
+        <div class="stat"><b>ISO <span class="count-up" data-to="17025">17025</span></b><span>Sistema acreditado</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" style="padding-top:100px">
+    <div class="wrap">
+      <div class="head rv">
+        <div><span class="kicker">Servicios</span><h2 class="h-lg">Tres laboratorios, un mismo estándar</h2></div>
+        <a class="btn btn-line-dark" href="#contacto">Hablar con un asesor</a>
+      </div>
+      <div class="svc-grid">
+        <a class="svc rv" href="#ensayos">
+          <div class="svc-img"><img src="img/prensa.jpg" alt="Técnico operando una prensa de compresión"><span class="svc-num">01</span><span class="svc-tag">Acreditado</span></div>
+          <div class="svc-body"><h3>Laboratorio de Ensayos</h3><p>Concreto, agregados, cemento, suelos, albañilería y análisis químicos.</p>
+          <span class="svc-more">Ver ensayos <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></span></div>
+        </a>
+        <a class="svc rv" href="#movil">
+          <div class="svc-img"><img src="img/campo.jpg" alt="Equipo realizando ensayos en obra"><span class="svc-num">02</span><span class="svc-tag">En obra</span></div>
+          <div class="svc-body"><h3>Laboratorio Móvil</h3><p>Ensayos y calibraciones en campo, con resultados en tiempo real.</p>
+          <span class="svc-more">Ver servicios en campo <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></span></div>
+        </a>
+        <a class="svc rv" href="#metrologia">
+          <div class="svc-img"><img src="img/calibracion.jpg" alt="Calibración de balanza con pesas patrón"><span class="svc-num">03</span><span class="svc-tag">Trazable</span></div>
+          <div class="svc-body"><h3>Laboratorio de Metrología</h3><p>Calibración de balanzas, temperatura, fuerza e instrumentos dimensionales.</p>
+          <span class="svc-more">Ver calibraciones <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></span></div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true"><div class="mq-track" data-mq></div></div>
+
+  <div data-cover></div>
+
+  <div data-road></div>
+
+  <div class="sec band-paper">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Cómo trabajamos</span><h2 class="h-lg">Del pedido al informe</h2></div></div>
+      <div class="steps">
+        <div class="step rv"><span class="step-n">1</span><h3>Solicitud</h3><p>Nos cuentas qué necesitas y definimos el alcance.</p></div>
+        <div class="step rv"><span class="step-n">2</span><h3>Programación</h3><p>Coordinamos fecha en laboratorio o en tu obra.</p></div>
+        <div class="step rv"><span class="step-n">3</span><h3>Ejecución</h3><p>Ensayamos o calibramos según norma y método.</p></div>
+        <div class="step rv"><span class="step-n">4</span><h3>Informe</h3><p>Entregamos resultados trazables y certificados.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-sm band-red">
+    <div class="wrap cta">
+      <span class="cta-step" aria-hidden="true"></span>
+      <h2 class="h-md rv">¿Necesitas un ensayo o una calibración? Te enviamos una propuesta.</h2>
+      <a class="btn btn-white" href="#contacto">Solicitar cotización <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NOSOTROS ================= -->
+<section class="page" data-page="nosotros" hidden>
+  <div class="phead">
+    <div class="wrap phead-grid">
+      <div class="phead-txt">
+        <span class="crumb"><a href="#inicio">Inicio</a> / Nosotros</span>
+        <h1 class="h-xl rise">Quiénes somos</h1>
+        <p class="lead rise d1">El Laboratorio de Servicios del Grupo Pacasmayo, con 15 años de experiencia en el norte del país.</p>
+      </div>
+      <div class="phead-img"><img src="img/equipo.jpg" alt="Equipo del Laboratorio de Servicios DINO Pacasmayo"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="wrap split">
+      <div class="photo photo-frame rv-l">
+        <img src="img/calibracion.jpg" alt="Técnico calibrando una balanza">
+        <div class="photo-badge"><b>ISO 17025</b><span>Sistema acreditado</span></div>
+      </div>
+      <div class="split-txt">
+        <span class="kicker rv">Nuestro compromiso</span>
+        <h2 class="h-lg rv">Resultados confiables, trazables y oportunos</h2>
+        <p class="lead rv">Personal calificado, equipos de última generación y un sistema de gestión acreditado por INACAL.</p>
+        <div class="vals">
+          <div class="val rv"><span class="val-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Compromiso con la calidad</b><span>Precisión e imparcialidad en cada servicio.</span></div></div>
+          <div class="val rv"><span class="val-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></span><div><b>Personal especializado</b><span>Soporte técnico integral para tu proyecto.</span></div></div>
+          <div class="val rv"><span class="val-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><div><b>Respuesta oportuna</b><span>Atención ágil, adaptada a cada obra.</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band-ink sec">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Por qué elegirnos</span><h2 class="h-lg">Lo que nos respalda</h2></div></div>
+      <div class="why rv-s">
+        <div><svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3l11 4v8c0 7-5 12-11 14C10 27 5 22 5 15V7l11-4z"/><path d="M11 16l4 4 6-7"/></svg><b>Acreditado por INACAL</b></div>
+        <div><svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="7" width="22" height="20"/><path d="M5 13h22M11 3v7M21 3v7"/></svg><b>15 años de experiencia</b></div>
+        <div><svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 29s10-9 10-17a10 10 0 10-20 0c0 8 10 17 10 17z"/><circle cx="16" cy="12" r="3.5"/></svg><b>Cobertura nacional</b></div>
+        <div><svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="11" r="4"/><circle cx="22" cy="13" r="3"/><path d="M4 26c1-5 4-7 8-7s7 2 8 7M20 19c4 0 7 2 8 6"/></svg><b>Personal competente</b></div>
+        <div><svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="4"/><path d="M16 1v6M16 25v6M1 16h6M25 16h6"/></svg><b>Trazabilidad metrológica</b></div>
+        <div><svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 21V9h17v12M19 13h6l5 5v3h-28"/><circle cx="8" cy="23" r="3"/><circle cx="24" cy="23" r="3"/></svg><b>Laboratorio móvil</b></div>
+        <div><svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3h12l6 6v20H8z"/><path d="M20 3v6h6M12 16h10M12 21h10"/></svg><b>Informes oportunos</b></div>
+        <div><svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 18v-3a11 11 0 0122 0v3"/><rect x="3" y="18" width="6" height="9"/><rect x="23" y="18" width="6" height="9"/></svg><b>Atención personalizada</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-sm band-red">
+    <div class="wrap cta">
+      <span class="cta-step" aria-hidden="true"></span>
+      <h2 class="h-md">Conoce dónde estamos y hasta dónde llegamos.</h2>
+      <a class="btn btn-white" href="#cobertura">Ver mapa de cobertura <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENSAYOS ================= -->
+<section class="page" data-page="ensayos" hidden>
+  <div class="phead">
+    <div class="wrap phead-grid">
+      <div class="phead-txt">
+        <span class="crumb"><a href="#inicio">Inicio</a> / Laboratorio de Ensayos</span>
+        <h1 class="h-xl rise">Laboratorio de Ensayos</h1>
+        <p class="lead rise d1">Control de calidad de materiales de construcción con equipos de alta precisión.</p>
+        <span class="chip-ac rise d2"><span class="mark"></span>INACAL · Registro N° LE-214</span>
+      </div>
+      <div class="phead-img"><img src="img/laboratorio.jpg" alt="Equipos del laboratorio de ensayos"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Catálogo</span><h2 class="h-lg">Encuentra tu ensayo</h2></div></div>
+      <div class="filters" id="filters">
+        <div class="search"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M14 14l4 4"/></svg><input id="q" type="search" placeholder="Buscar ensayo…" aria-label="Buscar ensayo"></div>
+      </div>
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="cat" id="cat"></div>
+    </div>
+  </div>
+
+  <div class="band-ink sec">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Métodos acreditados</span><h2 class="h-lg">Bajo NTP-ISO/IEC 17025:2017</h2></div><p class="lead" style="max-width:360px">Acreditados en las sedes de Trujillo, Piura y Cajamarca.</p></div>
+      <div class="methods">
+        <div class="method rv"><b>ASTM C39/C39M – 21</b><span>Compressive Strength of Cylindrical Concrete Specimens</span></div>
+        <div class="method rv"><b>NTP 339.034:2015</b><span>Resistencia a la compresión del concreto en muestras cilíndricas</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MÓVIL ================= -->
+<section class="page" data-page="movil" hidden>
+  <div class="phead-full">
+    <img src="img/campo.jpg" alt="">
+    <div class="wrap">
+      <span class="crumb"><a href="#inicio">Inicio</a> / Laboratorio Móvil</span>
+      <h1 class="h-xl lines">
+        <span class="line"><span>Calidad que llega</span></span>
+        <span class="line"><span class="red" style="color:#E30613">donde tu obra avanza</span></span>
+      </h1>
+      <p class="lead rise d2" style="color:#E9E7E5">Ensayos y calibraciones en campo con la misma precisión que en nuestro laboratorio.</p>
+      <div class="hero-actions rise d3"><a class="btn btn-red" href="#contacto" data-svc="movil">Programar servicio <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a></div>
+    </div>
+  </div>
+
+  <div data-road></div>
+
+  <div class="sec">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Ensayos en campo</span><h2 class="h-lg">Lo que hacemos en tu obra</h2></div></div>
+      <div class="field rv-s">
+        <div class="fitem"><svg width="36" height="36" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="11" y="3" width="12" height="28"/><path d="M11 10h12M11 17h12M11 24h12"/></svg><h3>Extracción de diamantinas</h3><p>Testigos de concreto para evaluar resistencia y patología.</p></div>
+        <div class="fitem"><svg width="36" height="36" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 28h26M8 28V12h18v16"/><path d="M8 18h18" stroke-dasharray="3 3"/></svg><h3>Carbonatación</h3><p>Profundidad de carbonatación en estructuras.</p></div>
+        <div class="fitem"><svg width="36" height="36" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 4l8 8-14 14-8-8z"/><path d="M8 18l-4 12 12-4"/></svg><h3>Esclerometría</h3><p>Resistencia superficial del concreto, sin dañarlo.</p></div>
+        <div class="fitem"><svg width="36" height="36" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 6h14l4 22H6z"/><path d="M8 18h18"/></svg><h3>Concreto fresco</h3><p>Slump, peso unitario, aire, temperatura, probetas y vigas.</p></div>
+        <div class="fitem"><svg width="36" height="36" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 26l9-12 6 7 4-5 9 10z"/><circle cx="24" cy="8" r="3"/></svg><h3>Ensayos en suelos</h3><p>Granulometría, densidad y humedad en campo.</p></div>
+        <div class="fitem"><svg width="36" height="36" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="17" cy="17" r="12"/><path d="M17 9v8l5 4"/></svg><h3>Calibraciones in situ</h3><p>Verificación de equipos e instrumentos en obra.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band-red sec">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Proceso en campo</span><h2 class="h-lg">Así llegamos a tu obra</h2></div></div>
+      <div class="steps">
+        <div class="step rv"><span class="step-n">1</span><h3>Programamos</h3><p>Fijamos fecha y alcance contigo.</p></div>
+        <div class="step rv"><span class="step-n">2</span><h3>Nos desplazamos</h3><p>Llegamos con equipos calibrados.</p></div>
+        <div class="step rv"><span class="step-n">3</span><h3>Ensayamos</h3><p>Personal especializado en obra.</p></div>
+        <div class="step rv"><span class="step-n">4</span><h3>Entregamos</h3><p>Resultados e informe técnico.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="wrap split">
+      <div class="split-txt">
+        <span class="kicker rv">Beneficios</span>
+        <h2 class="h-lg rv">Menos traslados, decisiones a tiempo</h2>
+        <div class="vals">
+          <div class="val rv"><span class="val-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><div><b>Ahorro de tiempo</b><span>Sin trasladar muestras al laboratorio.</span></div></div>
+          <div class="val rv"><span class="val-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v18M17 7H9.5a3 3 0 000 6h5a3 3 0 010 6H6"/></svg></span><div><b>Menores costos operativos</b><span>Todo se resuelve en la obra.</span></div></div>
+          <div class="val rv"><span class="val-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Control continuo</b><span>Seguridad y cumplimiento de especificaciones.</span></div></div>
+        </div>
+        <a class="btn btn-ink rv" href="#cobertura" style="align-self:flex-start;margin-top:8px">Ver ruta en el mapa <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a>
+      </div>
+      <div class="photo photo-frame rv-s"><img src="img/movil.jpg" alt="Unidad del laboratorio móvil Soluciones Express"><div class="photo-badge"><b>Norte</b><span>Trujillo · Piura · Cajamarca</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METROLOGÍA ================= -->
+<section class="page" data-page="metrologia" hidden>
+  <div class="phead">
+    <div class="wrap phead-grid">
+      <div class="phead-txt">
+        <span class="crumb"><a href="#inicio">Inicio</a> / Metrología</span>
+        <h1 class="h-xl rise">Laboratorio de Metrología</h1>
+        <p class="lead rise d1">Mediciones confiables, decisiones seguras. Calibraciones con patrones nacionales e internacionales.</p>
+        <div class="hero-actions rise d2"><a class="btn btn-red" href="#contacto" data-svc="metrologia">Cotizar calibración</a></div>
+      </div>
+      <div class="phead-img"><img src="img/metrologia.jpg" alt="Balanza analítica y pesas patrón"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Servicios de calibración</span><h2 class="h-lg">Equipos que calibramos</h2></div></div>
+      <div class="calib">
+        <div class="cbox rv"><h3>Balanzas</h3><ul><li>Analíticas</li><li>De precisión</li><li>Plataformas e industriales</li><li>Pesas</li></ul></div>
+        <div class="cbox rv"><h3>Dimensionales</h3><ul><li>Vernier</li><li>Flexómetro</li><li>Regla</li></ul></div>
+        <div class="cbox rv"><h3>Temperatura</h3><ul><li>Termómetros digitales</li><li>Termopares</li><li>Hornos y estufas</li><li>Termohigrómetros</li></ul></div>
+        <div class="cbox rv"><h3>Fuerza</h3><ul><li>Máquinas universales</li><li>Prensas de compresión</li><li>Celdas de carga</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band-ink sec">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Proceso de calibración</span><h2 class="h-lg">Elige la modalidad</h2></div></div>
+      <div class="seg" role="tablist" aria-label="Modalidad de calibración">
+        <button class="on" data-mode="lab" role="tab" aria-selected="true">En laboratorio</button>
+        <button data-mode="situ" role="tab" aria-selected="false">In situ</button>
+      </div>
+      <div class="steps" id="calSteps" style="--n:5"></div>
+    </div>
+  </div>
+
+  <div class="sec-sm">
+    <div class="wrap">
+      <div class="head rv" style="margin-bottom:28px"><div><span class="kicker">¿Por qué calibrar?</span></div></div>
+      <div class="why-cal">
+        <div class="rv"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#E30613" stroke-width="2.6" aria-hidden="true"><path d="M5 14l6 6 12-13"/></svg>Asegura la confiabilidad de las mediciones</div>
+        <div class="rv"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#E30613" stroke-width="2.6" aria-hidden="true"><path d="M5 14l6 6 12-13"/></svg>Reduce errores y costos en los procesos</div>
+        <div class="rv"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#E30613" stroke-width="2.6" aria-hidden="true"><path d="M5 14l6 6 12-13"/></svg>Cumple requisitos de auditorías y normas</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COBERTURA ================= -->
+<section class="page" data-page="cobertura" hidden>
+  <div class="band-ink">
+    <div class="wrap" style="padding-block:60px 52px;display:flex;flex-direction:column;gap:14px">
+      <span class="crumb"><a href="#inicio">Inicio</a> / Cobertura</span>
+      <h1 class="h-xl rise">Cobertura</h1>
+      <p class="lead rise d1">Tres sedes acreditadas en el norte y una unidad móvil que llega a todo el Perú.</p>
+    </div>
+  </div>
+  <div data-cover></div>
+  <div data-road></div>
+  <div class="sec-sm band-red">
+    <div class="wrap cta">
+      <span class="cta-step" aria-hidden="true"></span>
+      <h2 class="h-md">¿Tu obra está fuera de estas zonas? Igual llegamos.</h2>
+      <a class="btn btn-white" href="#contacto" data-svc="movil">Programar laboratorio móvil <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACTO ================= -->
+<section class="page" data-page="contacto" hidden>
+  <div class="band-ink">
+    <div class="wrap" style="padding-block:60px 52px;display:flex;flex-direction:column;gap:14px">
+      <span class="crumb"><a href="#inicio">Inicio</a> / Contacto</span>
+      <h1 class="h-xl rise">Solicitar cotización</h1>
+      <p class="lead rise d1">Completa los tres pasos y te enviaremos una propuesta.</p>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="wrap contact">
+      <div class="formcard">
+        <div class="progress" id="progress">
+          <div class="pstep on"><i></i>1. Servicio</div>
+          <div class="pstep"><i></i>2. Tus datos</div>
+          <div class="pstep"><i></i>3. Detalle</div>
+        </div>
+        <form id="form" novalidate>
+          <div class="fstep" data-step="1">
+            <h2>¿Qué servicio necesitas?</h2>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="servicio" id="svc-ensayos" value="ensayos" checked><b>Ensayos</b><span>En laboratorio</span></label>
+              <label class="opt"><input type="radio" name="servicio" id="svc-movil" value="movil"><b>Laboratorio móvil</b><span>En tu obra</span></label>
+              <label class="opt"><input type="radio" name="servicio" id="svc-metrologia" value="metrologia"><b>Calibración</b><span>Metrología</span></label>
+            </div>
+            <div class="grid2">
+              <div class="fld"><label for="f-item">Ensayo o equipo <em>*</em></label><select class="inp" id="f-item"></select><span class="msg"></span></div>
+              <div class="fld"><label for="f-sede">Sede más cercana</label><select class="inp" id="f-sede"><option>Trujillo</option><option>Piura</option><option>Cajamarca</option><option>Otra región</option></select></div>
+            </div>
+          </div>
+
+          <div class="fstep" data-step="2" hidden>
+            <h2>Tus datos de contacto</h2>
+            <div class="grid2">
+              <div class="fld"><label for="f-nombre">Nombre completo <em>*</em></label><input class="inp" id="f-nombre" autocomplete="name"><span class="msg"></span></div>
+              <div class="fld"><label for="f-empresa">Empresa</label><input class="inp" id="f-empresa" autocomplete="organization"></div>
+              <div class="fld"><label for="f-ruc">RUC</label><input class="inp" id="f-ruc" inputmode="numeric" maxlength="11" placeholder="11 dígitos"><span class="msg"></span></div>
+              <div class="fld"><label for="f-tel">Teléfono / WhatsApp <em>*</em></label><input class="inp" id="f-tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="9 dígitos"><span class="msg"></span></div>
+              <div class="fld full"><label for="f-mail">Correo electrónico <em>*</em></label><input class="inp" id="f-mail" type="email" autocomplete="email" placeholder="nombre@empresa.com"><span class="msg"></span></div>
+            </div>
+          </div>
+
+          <div class="fstep" data-step="3" hidden>
+            <h2>Detalle del requerimiento</h2>
+            <div class="grid2">
+              <div class="fld"><label for="f-cant">Cantidad de muestras / equipos</label><input class="inp" id="f-cant" type="number" min="1" placeholder="Ej. 12"><span class="msg"></span></div>
+              <div class="fld"><label for="f-fecha">Fecha requerida</label><input class="inp" id="f-fecha" type="date"><span class="msg"></span></div>
+              <div class="fld full" id="obraWrap" hidden><label for="f-obra">Ubicación de la obra <em>*</em></label><input class="inp" id="f-obra" placeholder="Distrito, provincia"><span class="msg"></span></div>
+              <div class="fld full"><label for="f-det">Descripción</label><textarea class="inp" id="f-det" maxlength="600" placeholder="Normas de referencia, observaciones…"></textarea><span class="lbl" id="detCount" style="font-weight:400;color:#5B5957">0 / 600</span></div>
+              <div class="fld full"><label class="check" for="f-ok"><input type="checkbox" id="f-ok">Acepto el tratamiento de mis datos para atender esta solicitud.</label><span class="msg"></span></div>
+            </div>
+          </div>
+
+          <div class="factions">
+            <button type="button" class="btn btn-line-dark" id="back" hidden>Atrás</button>
+            <span></span>
+            <button type="button" class="btn btn-red" id="nextStep">Continuar <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></button>
+            <button type="submit" class="btn btn-red" id="send" hidden>Enviar solicitud</button>
+          </div>
+        </form>
+        <div id="done" hidden></div>
+      </div>
+
+      <aside class="cside">
+        <div class="cbox-ink">
+          <div class="cline"><small><span class="mark"></span>ENSAYOS</small>
+            <div class="crow"><span>972 652 664</span><button class="copy" data-copy="972652664">Copiar</button></div>
+            <div class="crow"><span class="mail">sascho@dino.com.pe</span><button class="copy" data-copy="sascho@dino.com.pe">Copiar</button></div>
+          </div>
+          <div class="cline"><small><span class="mark"></span>CALIBRACIONES</small>
+            <div class="crow"><span>949 916 413</span><button class="copy" data-copy="949916413">Copiar</button></div>
+            <div class="crow"><span>962 487 657</span><button class="copy" data-copy="962487657">Copiar</button></div>
+            <div class="crow"><span class="mail">jcarriondino@dino.com.pe</span><button class="copy" data-copy="jcarriondino@dino.com.pe">Copiar</button></div>
+            <div class="crow"><span class="mail">agamboa@dino.com.pe</span><button class="copy" data-copy="agamboa@dino.com.pe">Copiar</button></div>
+          </div>
+        </div>
+        <div class="cbox-line">
+          <h3>Sedes</h3>
+          <div class="mini-sede"><b>Trujillo · principal</b><span>Calle 2, Mz. B1, Lt. 13, Parque Industrial, La Esperanza</span></div>
+          <div class="mini-sede"><b>Piura</b><span>Carretera Piura–Paita km 3, Fnd. Sta. Martha</span></div>
+          <div class="mini-sede"><b>Cajamarca</b><span>Siguispampa S/N, Cas. La Banda, Llacanora</span></div>
+          <a class="btn btn-line-dark" href="#cobertura" style="min-height:44px;margin-top:6px">Ver en el mapa</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-top">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="foot-logos"><img class="dino" src="img/logo-dino.png" alt="DINO"><img class="pac" src="img/logo-pacasmayo-blanco.png" alt="Pacasmayo"></div>
+      <p>Laboratorio de Servicios. Comprometidos con la calidad y la innovación.</p>
+    </div>
+    <div><h4>Servicios</h4><ul><li><a href="#ensayos">Laboratorio de Ensayos</a></li><li><a href="#movil">Laboratorio Móvil</a></li><li><a href="#metrologia">Metrología</a></li></ul></div>
+    <div><h4>Empresa</h4><ul><li><a href="#nosotros">Nosotros</a></li><li><a href="#cobertura">Cobertura</a></li><li><a href="#contacto">Cotización</a></li><li><a href="https://www.dino.com.pe" target="_blank" rel="noopener">dino.com.pe</a></li></ul></div>
+    <div><h4>Contacto</h4><ul><li>Ensayos: 972 652 664</li><li>Calibraciones: 949 916 413</li><li>Trujillo · Piura · Cajamarca</li></ul></div>
+  </div>
+  <div class="wrap foot-bot"><span>© 2026 Laboratorio de Servicios DINO Pacasmayo</span><span>Acreditado INACAL · Registro N° LE-214</span></div>
+</footer>
+
+<button class="totop" id="totop" aria-label="Volver arriba" hidden><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 16V4M5 9l5-5 5 5"/></svg></button>
+
+<template id="covTpl">
+  <div class="cov-sec">
+    <div class="wrap">
+      <div class="head rv">
+        <div><span class="kicker">Cobertura</span><h2 class="h-lg">Fuertes en el norte, presentes en todo el Perú</h2></div>
+        <p class="lead" style="max-width:420px">Selecciona una sede o pasa el cursor por el mapa para ver cada zona.</p>
+      </div>
+      <div class="cov-body">
+        <div class="cov-side">
+          <button type="button" class="sede-btn on" data-sede="Trujillo"><b>Trujillo</b><small>Sede principal</small><span>La Libertad</span></button>
+          <button type="button" class="sede-btn" data-sede="Piura"><b>Piura</b><small>Sede</small><span>Piura</span></button>
+          <button type="button" class="sede-btn" data-sede="Cajamarca"><b>Cajamarca</b><small>Sede</small><span>Cajamarca</span></button>
+          <div class="legend">
+            <span><i style="background:#E30613"></i>Sede acreditada</span>
+            <span><i style="background:#F6B9BD"></i>Cobertura frecuente</span>
+            <span><i style="background:#ECEAE8"></i>Atención con laboratorio móvil</span>
+            <span><i class="route-i"></i>Ruta de la unidad móvil</span>
+          </div>
+        </div>
+        <div class="map-stage">
+          <svg class="pe-map" viewBox="0 0 457 668" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mapa del Perú con la cobertura del laboratorio: sedes en La Libertad, Piura y Cajamarca"><g class="regions"><path class="rg core" style="--i:0" data-n="Cajamarca" d="M84.7 184.0 86.7 182.2 87.7 179.1 90.2 178.7 90.5 178.0 89.5 174.5 90.6 172.6 92.2 171.1 97.3 168.7 99.2 172.5 100.3 177.2 101.6 179.3 102.0 182.3 100.5 184.7 99.4 188.9 101.0 196.9 100.9 201.7 96.9 207.8 96.0 208.4 96.7 209.7 95.2 211.3 95.0 213.6 100.5 221.7 103.2 222.6 106.5 225.0 110.1 232.2 116.3 236.1 118.2 239.1 121.9 247.0 122.1 249.3 121.4 250.2 122.1 251.2 121.7 253.4 122.3 255.6 124.1 258.3 124.8 261.3 127.1 264.0 127.0 265.5 127.9 266.2 128.2 269.2 130.6 271.2 131.2 272.5 127.8 272.5 125.4 273.9 125.5 277.2 124.6 279.7 119.9 280.7 118.0 279.6 114.5 282.6 112.1 283.2 111.7 281.0 109.9 280.3 108.4 278.9 105.0 278.7 101.2 276.1 97.5 276.7 95.1 275.5 89.1 277.5 86.9 280.9 84.6 279.0 84.9 276.0 82.7 272.3 80.0 270.1 74.5 268.5 73.3 267.3 74.9 263.7 74.2 261.4 74.6 256.0 75.6 255.3 75.6 251.9 80.9 247.5 81.2 246.3 80.5 244.9 75.6 243.7 73.3 239.1 71.1 238.3 71.4 235.0 70.5 233.4 70.7 232.6 72.3 230.8 76.6 229.6 77.8 228.3 78.1 226.8 76.6 225.8 76.4 225.0 79.3 221.3 78.8 220.3 76.0 219.0 74.1 220.1 73.5 219.2 71.5 219.6 71.0 219.2 74.4 216.2 74.0 214.8 72.9 213.5 72.1 210.4 72.9 205.4 72.5 203.2 73.1 201.6 75.5 201.6 75.6 200.9 75.3 195.9 74.2 194.8 73.2 189.8 76.0 185.7 77.2 185.2 77.5 183.7 78.7 182.4 83.3 182.9 84.7 184.0Z"/><path class="rg core" style="--i:1" data-n="Piura" d="M33.3 149.9 34.8 155.3 39.2 154.7 34.1 161.9 34.8 163.7 37.9 164.7 42.4 161.5 44.2 158.3 46.5 157.8 48.7 158.7 52.1 161.6 54.9 162.0 57.4 164.8 58.7 165.1 63.6 163.4 66.4 165.7 69.2 167.1 68.2 169.9 69.3 171.4 71.0 176.8 73.0 178.1 73.6 179.5 74.9 180.2 76.2 182.2 78.7 182.4 77.5 183.7 77.2 185.2 76.0 185.7 73.2 189.8 74.2 194.8 75.3 195.9 75.6 200.9 75.5 201.6 73.1 201.6 72.6 202.8 72.9 205.4 72.1 209.8 72.9 213.5 74.0 214.8 74.4 216.2 71.0 219.2 70.0 217.9 68.2 217.2 64.7 217.4 63.4 215.6 62.1 214.5 59.8 213.9 59.6 212.8 60.4 210.4 58.1 207.1 53.3 203.3 52.9 204.3 53.5 207.8 53.3 213.2 51.7 214.3 39.8 218.1 35.5 223.2 34.1 226.5 29.1 233.2 23.4 230.4 21.2 228.2 12.4 222.2 11.3 220.8 10.6 218.7 10.6 215.4 11.8 213.8 12.6 213.8 13.3 211.9 13.9 212.0 14.6 213.1 18.1 214.2 20.8 210.4 21.1 207.0 18.4 200.3 13.4 195.1 11.3 194.4 8.9 191.1 10.1 189.5 9.7 188.7 10.2 188.1 10.2 186.2 11.4 185.9 12.0 186.5 13.0 186.5 13.7 184.4 13.0 182.7 10.7 180.6 8.0 176.6 4.0 172.0 5.1 170.8 4.7 169.2 5.1 166.8 4.3 164.8 6.1 161.9 5.7 158.3 7.0 156.2 10.1 154.1 12.1 151.5 13.8 150.6 16.8 153.2 18.5 153.7 22.4 153.5 27.4 155.2 33.3 149.9ZM21.6 233.3 21.1 234.2 21.7 236.7 20.8 236.7 20.4 235.2 21.2 233.1 21.6 233.3Z"/><path class="rg core" style="--i:2" data-n="La Libertad" d="M99.5 326.3 98.3 323.4 95.4 319.5 96.2 317.2 95.5 313.5 93.4 310.6 89.1 307.3 90.3 306.6 90.5 305.2 88.3 301.9 87.5 299.4 82.6 294.8 82.6 293.9 76.3 289.4 73.4 285.6 72.9 284.1 70.4 281.4 71.5 280.6 71.5 279.9 66.3 272.3 66.1 270.4 66.6 269.5 65.8 266.8 65.2 265.2 62.2 262.0 62.4 261.4 69.5 254.3 73.7 255.2 74.6 256.0 74.2 261.4 75.0 263.3 73.4 267.6 74.5 268.5 80.0 270.1 82.7 272.3 84.9 276.0 84.6 279.0 86.9 280.9 89.1 277.5 95.1 275.5 97.5 276.7 101.2 276.1 105.0 278.7 108.1 278.7 111.7 281.0 112.1 283.2 114.0 282.8 118.0 279.6 119.9 280.7 124.6 279.7 125.5 277.2 125.4 273.9 127.8 272.5 131.2 272.5 129.8 270.5 128.2 269.2 127.9 266.2 127.0 265.5 127.1 264.0 124.8 261.3 124.1 258.3 122.8 256.1 127.0 255.1 128.8 255.6 131.6 255.4 132.1 255.9 133.8 260.0 136.7 262.6 135.7 265.8 136.9 270.1 142.0 276.2 141.1 281.6 141.7 284.5 144.2 289.0 143.7 291.7 145.7 294.4 149.8 294.1 156.3 296.3 158.9 297.7 161.3 301.0 162.3 310.0 163.1 311.6 162.7 312.4 161.7 313.6 158.2 313.3 156.7 309.6 152.1 310.8 146.6 310.8 146.6 309.5 145.6 307.3 140.8 300.6 136.0 296.3 136.0 294.6 135.0 293.3 135.0 292.0 129.8 294.2 126.1 293.9 124.0 297.8 118.2 302.8 116.8 307.0 114.1 311.1 114.6 313.1 113.5 315.3 110.4 315.7 108.5 317.1 103.4 318.8 102.1 319.8 101.3 321.3 100.6 325.6 99.5 326.3Z"/><path class="rg near" style="--i:3" data-n="Amazonas" d="M114.5 129.9 116.7 128.8 117.0 128.0 115.5 124.7 117.2 123.2 118.8 120.4 121.0 118.4 124.6 113.6 127.2 111.2 129.2 110.4 131.1 121.9 134.2 128.9 135.4 134.9 135.5 139.1 138.0 143.5 139.0 148.4 138.2 151.2 137.5 163.4 134.4 169.6 131.7 172.9 130.6 176.3 130.5 179.2 132.0 188.4 132.8 191.8 135.3 197.4 132.7 200.7 133.2 205.8 132.3 208.1 132.6 209.6 137.8 219.4 139.3 220.5 145.3 222.1 149.0 224.0 150.6 226.3 152.2 230.7 152.2 231.8 147.5 236.4 145.8 240.3 144.5 241.2 142.1 241.8 137.9 241.9 134.2 240.3 132.6 240.8 132.0 241.7 131.4 248.5 130.3 252.8 130.5 254.1 131.6 255.4 129.6 255.6 126.4 255.1 122.8 256.1 121.7 253.4 122.1 251.2 121.4 250.2 122.1 249.3 122.1 247.7 118.2 239.1 116.3 236.1 110.1 232.2 106.5 225.0 103.2 222.6 100.5 221.7 99.9 220.3 97.2 217.5 95.0 213.6 95.0 212.5 95.5 210.9 96.7 209.7 96.0 208.4 96.9 207.8 100.9 201.7 101.0 196.9 99.4 188.9 100.5 184.7 101.7 183.5 102.0 181.8 99.2 172.5 97.3 168.7 98.6 167.4 98.7 165.4 99.9 163.3 98.6 162.1 98.3 159.4 102.0 151.2 102.5 146.9 104.8 145.8 105.4 142.2 107.6 140.1 107.4 136.4 108.3 136.1 108.2 133.0 109.6 129.2 109.7 126.3 110.6 125.4 112.9 126.0 114.5 129.9Z"/><path class="rg near" style="--i:4" data-n="Tumbes" d="M45.6 143.3 45.1 144.3 42.3 145.6 39.9 148.2 37.0 147.0 34.9 147.2 33.3 149.9 27.6 155.2 22.4 153.5 18.5 153.7 16.8 153.2 13.8 150.7 16.2 146.6 20.7 143.0 21.2 140.7 22.8 138.2 29.7 133.8 32.4 129.8 33.4 129.4 37.8 128.8 39.4 125.8 42.1 127.0 41.8 129.1 43.0 130.1 42.6 132.4 43.5 132.9 43.8 134.3 43.4 138.6 44.8 142.5 45.6 143.3Z"/><path class="rg near" style="--i:5" data-n="Áncash" d="M126.4 385.3 125.2 382.7 123.6 381.4 123.3 380.0 122.1 378.5 122.3 377.4 120.5 376.1 120.4 374.5 119.5 373.6 118.8 370.8 116.0 367.6 116.5 367.0 116.2 365.1 114.1 361.7 114.3 360.0 113.9 358.5 114.4 356.2 111.8 353.6 109.4 349.8 109.4 347.6 108.8 347.3 108.1 344.8 108.8 343.9 107.3 342.7 107.3 341.1 107.8 340.6 106.6 339.4 105.3 339.5 103.8 337.3 105.1 336.0 104.8 334.4 103.5 333.8 102.7 334.2 102.9 336.4 100.8 334.0 100.9 333.2 102.2 333.7 102.6 332.2 101.5 330.4 100.0 330.2 99.7 329.6 100.2 328.1 99.0 327.1 100.6 325.6 101.3 321.3 102.1 319.8 103.4 318.8 108.5 317.1 110.4 315.7 113.5 315.3 114.6 313.1 114.1 311.1 116.8 307.0 118.2 302.8 124.0 297.8 126.1 293.9 127.6 294.1 129.8 294.2 135.0 292.0 135.0 293.3 136.0 294.6 135.7 295.4 136.5 297.1 140.8 300.6 145.6 307.3 146.6 309.5 147.5 315.8 150.4 318.9 150.4 320.7 151.2 322.1 153.2 324.0 155.4 324.8 158.5 328.4 161.1 329.3 162.2 330.9 165.8 332.5 167.3 333.8 167.0 335.3 163.0 339.3 159.4 347.7 158.9 350.7 155.4 355.3 158.0 361.7 158.4 365.7 161.4 367.8 160.5 370.2 160.4 373.9 152.7 377.5 152.1 380.4 151.0 382.3 148.3 384.6 144.7 386.7 143.5 389.0 140.5 390.4 137.1 390.4 136.5 387.2 136.6 384.5 134.3 382.9 131.2 382.3 131.3 381.6 133.3 380.2 134.0 378.9 134.1 378.2 133.1 376.8 130.3 376.8 129.1 383.4 126.4 385.3Z"/><path class="rg near" style="--i:6" data-n="Lambayeque" d="M62.4 261.4 62.5 260.3 61.8 259.4 53.9 251.4 52.7 247.9 51.3 246.3 45.5 241.9 29.1 233.2 34.1 226.5 35.5 223.2 39.8 218.1 51.7 214.3 53.3 213.2 53.5 207.8 52.9 204.3 53.3 203.3 59.0 208.3 60.5 210.8 59.6 213.0 60.1 214.1 62.6 214.7 64.7 217.4 68.2 217.2 70.3 218.1 71.5 219.6 73.2 219.1 74.1 220.1 74.8 219.6 76.0 219.0 78.8 220.3 79.3 221.3 76.4 225.0 76.6 225.8 78.1 226.8 77.8 228.3 76.6 229.6 72.3 230.8 70.7 232.6 70.5 233.4 71.4 235.0 71.1 238.3 73.3 239.1 75.6 243.7 80.8 245.1 81.1 247.1 78.3 250.0 75.8 251.5 75.3 255.8 69.5 254.3 62.4 261.4Z"/><path class="rg near" style="--i:7" data-n="San Martín" d="M135.3 197.4 138.5 200.1 145.0 202.9 150.7 207.8 159.1 208.4 162.1 209.8 164.9 212.4 167.4 218.8 170.3 221.0 173.7 221.1 179.9 216.9 182.3 216.8 189.2 223.4 191.3 223.9 199.0 223.5 205.3 224.9 208.6 226.4 211.0 228.9 212.2 231.1 211.5 244.5 210.6 247.8 207.6 252.9 206.2 253.5 205.2 253.3 200.8 248.2 199.0 247.2 195.8 246.7 193.1 247.9 189.6 255.4 190.5 259.5 190.0 267.4 190.7 271.3 200.1 292.1 201.3 295.7 201.2 298.5 197.0 304.2 195.2 312.1 193.1 313.5 190.7 317.3 189.7 318.1 188.3 317.8 187.6 317.1 186.2 312.3 183.6 308.5 183.3 306.6 182.4 305.3 181.4 305.6 180.7 307.2 180.6 311.4 179.7 312.9 177.3 313.2 166.1 311.0 163.1 311.6 162.3 310.0 161.3 301.0 158.9 297.7 156.3 296.3 149.8 294.1 145.7 294.4 143.7 291.7 144.2 289.0 141.7 284.5 141.1 281.6 142.0 276.2 136.9 270.1 135.7 265.8 136.7 262.6 133.8 260.0 132.5 256.4 130.5 254.1 130.4 251.6 131.4 248.5 131.8 242.9 132.6 240.8 134.2 240.3 137.9 241.9 142.1 241.8 144.5 241.2 145.8 240.3 147.5 236.4 152.2 231.8 152.2 230.7 150.6 226.3 149.0 224.0 145.3 222.1 139.3 220.5 136.9 218.2 132.3 208.1 133.2 205.8 132.7 200.7 135.3 197.4Z"/><path class="rg" style="--i:8" data-n="Tacna" d="M423.9 633.8 417.8 639.2 413.0 639.3 411.9 640.5 411.6 642.0 413.2 647.6 414.3 649.6 414.2 650.9 411.3 656.8 407.6 660.6 400.9 663.3 395.3 663.2 392.5 663.8 382.3 657.4 380.0 655.0 375.3 652.2 374.1 649.7 370.8 647.6 368.0 646.9 364.8 644.2 366.2 641.9 367.9 640.6 373.7 637.8 374.9 635.3 377.2 632.9 378.5 629.1 381.0 625.5 382.2 624.2 385.4 622.9 388.2 619.8 389.6 617.8 389.1 614.6 390.1 610.9 392.0 609.1 393.9 609.1 395.1 609.8 396.3 612.3 397.5 613.3 398.5 613.4 399.5 612.8 400.2 610.9 406.0 620.6 409.7 623.2 412.4 624.5 414.5 624.3 416.3 626.4 420.3 626.2 422.3 627.5 423.9 630.0 423.9 633.8Z"/><path class="rg" style="--i:9" data-n="Madre de Dios" d="M420.9 397.9 421.5 397.9 453.3 453.7 451.8 456.0 449.4 457.9 449.7 458.9 451.2 459.6 450.4 461.2 446.4 462.8 445.4 464.5 444.7 464.4 442.7 466.8 443.0 472.7 420.0 484.1 395.1 472.1 393.9 472.5 386.4 472.0 386.1 473.1 388.0 474.8 386.9 475.8 382.5 476.1 370.4 474.3 364.8 471.0 359.4 469.5 353.8 466.9 349.3 466.9 342.7 464.8 340.7 463.6 338.6 459.6 339.4 456.5 339.2 454.5 336.0 447.5 331.8 446.0 329.4 439.8 322.9 435.8 321.9 432.1 323.7 423.6 328.4 415.0 329.5 408.2 332.5 402.6 332.6 401.6 330.4 398.6 330.4 397.8 331.4 397.2 332.7 397.3 336.7 399.2 342.4 398.9 358.6 390.6 363.7 388.5 371.2 382.8 374.6 378.7 376.2 375.9 377.5 367.3 383.9 362.0 383.8 400.0 387.6 397.4 391.0 400.9 392.7 401.7 396.3 401.9 399.5 401.1 408.1 396.7 413.4 397.0 416.5 398.3 420.9 397.9Z"/><path class="rg" style="--i:10" data-n="Loreto" d="M221.7 4.6 224.7 5.5 227.2 8.4 228.5 8.7 231.4 11.1 233.5 11.6 235.2 9.7 237.7 13.6 236.4 14.9 239.0 15.4 240.1 16.3 241.7 15.8 244.6 19.4 249.7 23.1 251.6 27.9 250.8 29.6 252.3 31.5 253.8 31.9 253.5 32.5 254.3 33.7 252.3 34.5 253.7 35.9 255.1 38.6 260.3 40.4 261.2 40.3 261.8 39.3 263.2 42.5 263.9 42.9 265.1 42.0 265.2 43.5 267.4 43.7 269.6 47.2 271.5 47.7 273.2 46.2 274.0 47.4 277.4 48.8 278.1 50.6 278.8 50.6 279.1 52.2 280.0 53.0 279.3 54.1 279.6 54.6 282.4 56.8 282.8 60.2 281.7 61.3 281.2 63.9 284.2 66.2 284.4 66.9 286.3 67.0 287.6 68.1 288.8 67.2 290.5 67.4 290.9 66.3 293.2 68.0 293.2 69.7 294.4 71.8 294.0 74.1 296.1 78.2 294.7 80.8 293.1 82.3 293.0 83.3 294.1 84.8 294.4 86.1 296.5 86.9 297.1 88.0 298.0 86.4 300.5 87.8 302.3 90.9 307.0 89.2 308.5 90.1 309.5 88.8 310.2 90.8 311.3 90.2 312.7 87.6 315.5 89.4 319.9 90.2 320.8 91.3 322.1 91.8 325.5 91.2 325.5 90.2 326.6 89.9 329.3 90.4 333.4 87.1 337.4 87.3 341.4 82.1 344.5 80.4 345.1 82.4 346.9 81.7 351.9 83.6 352.5 86.1 353.4 86.9 354.0 85.2 354.8 84.8 356.4 87.4 355.7 88.4 356.1 89.1 359.8 87.6 360.1 88.1 362.0 87.4 363.6 87.8 365.3 86.8 366.0 85.1 366.8 84.7 368.2 84.5 370.0 85.1 370.3 82.7 373.7 83.5 374.4 83.2 378.6 86.7 381.5 87.4 381.7 88.9 383.0 89.9 383.6 91.8 385.3 91.7 385.4 90.6 386.0 90.2 389.3 91.9 390.7 93.5 393.9 93.1 394.3 93.5 394.1 94.3 393.2 94.8 393.6 95.7 396.0 94.9 396.8 95.3 398.2 98.1 400.0 97.9 401.2 99.7 402.8 98.1 403.2 98.4 403.9 100.5 404.7 101.3 380.5 139.8 382.0 139.9 387.2 142.7 389.1 143.2 391.0 142.8 393.1 141.1 395.5 141.5 398.8 144.9 399.9 148.6 404.4 151.5 406.8 154.1 407.9 157.1 406.9 158.9 405.7 159.8 404.7 159.7 403.7 158.7 403.1 157.2 401.6 157.0 399.2 159.9 398.3 158.5 397.4 158.4 395.3 156.5 395.5 153.8 394.8 152.8 394.4 152.6 393.7 153.7 391.3 152.4 388.2 154.2 387.0 152.7 385.8 154.6 384.1 153.6 384.1 151.9 383.6 151.8 381.9 153.8 379.1 153.2 377.0 154.1 376.4 155.0 376.6 156.2 375.5 156.6 372.2 161.5 370.8 160.1 370.0 161.5 368.1 160.7 366.5 162.1 365.0 160.7 363.4 162.4 361.6 161.1 360.2 161.8 359.9 163.4 359.3 163.3 358.1 164.1 357.3 163.3 354.1 163.5 353.1 163.7 352.4 165.1 351.2 164.9 349.1 165.6 349.3 164.9 347.4 165.9 346.2 164.9 344.8 165.4 343.2 164.9 342.6 165.7 338.8 166.3 334.3 169.6 333.0 169.4 331.7 171.5 326.6 174.9 323.7 175.1 323.3 175.8 321.8 176.2 320.8 179.1 318.6 180.1 318.0 181.7 316.1 182.1 313.7 183.9 312.6 185.8 309.0 185.6 308.1 186.5 305.2 186.9 305.0 187.8 302.9 188.4 303.7 193.4 302.7 194.9 301.0 200.4 301.4 203.7 300.8 207.1 300.0 209.1 295.1 215.2 291.7 222.4 292.0 224.9 293.9 227.5 294.5 231.2 295.5 233.7 295.3 235.3 293.0 239.2 290.1 240.3 286.9 240.6 276.2 248.4 274.9 250.2 273.1 251.5 271.2 259.3 273.9 263.7 274.7 266.6 274.3 267.3 270.7 267.7 268.0 269.0 265.1 268.4 266.5 271.8 266.0 273.7 265.1 274.7 262.1 272.8 256.3 270.6 251.1 270.0 246.1 267.3 243.6 267.4 242.9 269.3 244.6 276.2 245.0 283.0 244.8 286.8 243.8 288.3 240.0 290.3 229.0 292.7 224.2 295.4 218.0 295.8 216.6 295.4 215.1 298.6 212.5 299.1 211.0 300.7 211.3 303.5 214.0 307.1 214.2 308.6 212.2 308.6 208.6 305.8 206.8 305.4 198.0 313.1 194.4 314.8 197.0 304.2 201.0 299.0 201.4 297.0 200.1 292.1 190.7 271.3 190.0 267.4 190.5 259.5 189.6 255.4 193.1 247.9 195.8 246.7 199.0 247.2 200.8 248.2 205.2 253.3 206.2 253.5 207.6 252.9 210.6 247.8 211.5 244.5 212.2 231.1 211.0 228.9 208.6 226.4 205.3 224.9 199.0 223.5 191.3 223.9 189.2 223.4 182.3 216.8 179.9 216.9 173.7 221.1 170.3 221.0 167.4 218.8 164.9 212.4 162.1 209.8 159.1 208.4 150.7 207.8 145.0 202.9 138.5 200.1 135.3 197.4 132.8 191.8 130.4 178.2 131.7 172.9 134.4 169.6 137.5 163.4 138.2 151.2 139.0 148.4 138.0 143.5 135.5 139.1 135.4 134.9 134.2 128.9 131.1 121.9 129.2 110.4 169.2 96.3 190.3 80.2 208.7 58.9 214.6 36.5 216.6 38.7 220.9 38.5 220.1 37.2 218.5 30.5 218.6 27.6 219.9 26.1 219.8 23.2 216.7 20.6 214.6 19.5 212.9 16.6 211.8 12.5 208.5 10.2 207.0 10.1 206.3 9.0 206.4 7.6 210.3 8.0 212.9 9.4 216.8 9.0 220.0 6.8 220.8 5.1 221.7 4.6Z"/><path class="rg" style="--i:11" data-n="Ucayali" d="M265.1 274.7 263.9 275.2 264.2 275.8 265.6 276.6 270.2 281.5 274.7 284.0 275.1 285.4 274.7 286.8 273.5 287.5 271.8 287.1 272.2 289.5 273.5 290.8 276.3 292.1 278.7 296.5 278.6 299.2 280.1 301.4 280.8 304.5 287.4 308.9 287.6 313.1 289.7 315.7 292.5 316.6 293.8 317.5 297.6 323.8 299.4 325.1 300.9 327.1 301.5 330.7 301.0 332.4 299.0 334.2 298.8 335.6 296.8 336.4 292.4 342.3 306.7 342.4 311.7 343.7 312.9 343.5 316.5 344.9 321.0 345.1 323.3 346.8 324.4 346.8 324.7 349.2 326.2 351.6 325.7 353.7 326.1 355.0 328.6 356.6 329.8 359.2 328.6 363.8 357.1 363.8 359.0 362.9 360.4 363.4 364.1 361.4 365.9 358.7 371.1 356.5 372.1 354.8 373.9 353.5 375.5 351.4 382.4 346.6 385.0 343.8 387.9 343.1 387.3 345.4 386.1 346.6 386.5 348.0 384.4 348.0 385.2 350.5 387.3 353.1 386.3 355.6 385.4 355.6 384.2 356.8 383.9 362.0 377.5 367.3 375.7 377.1 371.2 382.8 367.6 385.6 362.3 389.4 358.6 390.6 342.4 398.9 336.7 399.2 333.4 397.5 330.7 397.4 330.4 398.6 332.6 402.1 329.5 408.2 329.1 410.9 326.4 410.9 325.0 410.2 321.0 411.5 316.6 414.7 315.0 415.1 311.1 413.6 310.0 412.2 306.3 412.9 303.3 411.4 302.3 410.7 301.0 407.8 300.3 406.8 299.9 406.9 298.1 409.2 295.3 410.2 284.6 411.3 283.1 409.8 281.8 406.6 282.5 399.8 281.2 397.0 278.1 392.6 273.1 390.9 268.6 397.4 267.1 398.5 263.4 398.6 257.5 400.0 254.0 400.1 250.9 401.4 248.6 400.8 247.7 399.3 246.5 394.1 249.9 391.7 254.8 386.9 258.3 385.3 258.6 384.5 257.7 383.3 253.9 381.5 251.4 374.9 251.7 367.7 249.0 362.0 248.9 358.1 246.7 352.6 240.1 343.4 239.0 340.7 240.7 333.8 240.4 330.1 242.2 326.4 242.7 321.2 246.1 318.9 246.4 318.1 246.0 315.9 245.1 314.7 240.4 313.9 238.6 314.3 236.0 315.3 232.4 318.3 230.2 319.4 226.4 323.3 218.5 335.9 213.5 337.8 209.2 341.4 207.2 342.2 205.5 341.8 203.4 338.1 201.2 336.0 200.6 330.9 199.4 328.7 197.7 327.5 196.9 320.3 194.6 316.2 194.4 314.8 198.0 313.1 206.8 305.4 208.6 305.8 212.2 308.6 214.2 308.6 214.0 307.1 211.3 303.5 211.0 300.7 212.5 299.1 215.1 298.6 216.6 295.4 218.0 295.8 224.2 295.4 229.0 292.7 240.0 290.3 244.3 287.9 244.8 286.8 245.0 283.0 244.6 276.2 242.9 269.3 243.6 267.4 246.1 267.3 251.1 270.0 256.3 270.6 262.1 272.8 265.1 274.7Z"/><path class="rg" style="--i:12" data-n="Puno" d="M443.0 472.7 443.1 489.7 442.6 491.4 441.2 493.1 441.2 494.5 440.5 494.9 438.9 494.8 438.4 495.6 441.5 498.7 441.2 500.6 442.3 502.9 442.7 506.6 445.4 509.0 446.9 514.5 446.2 515.2 442.6 515.8 441.7 516.5 441.5 519.2 442.4 521.2 436.2 525.7 436.0 528.4 433.7 528.3 432.6 534.6 430.0 535.5 428.9 536.5 429.0 540.0 428.4 542.9 431.8 547.3 436.8 552.0 436.2 553.1 434.6 553.1 434.1 554.5 433.0 554.9 431.7 556.2 431.9 558.2 429.9 559.5 429.4 561.7 426.8 566.1 434.3 585.1 435.5 586.6 437.8 587.9 440.2 587.1 441.7 587.5 442.7 587.2 444.9 589.2 447.6 590.5 448.0 591.4 447.2 592.7 442.0 594.8 441.1 595.9 440.6 600.5 441.8 602.4 440.7 603.7 438.1 605.2 435.6 605.8 434.1 609.1 430.5 612.8 429.1 615.3 427.4 616.4 427.6 617.9 426.9 618.7 423.9 619.6 420.9 622.1 419.9 622.3 418.5 626.0 416.0 626.3 414.5 624.3 412.4 624.5 406.0 620.6 400.9 612.5 400.1 609.6 400.6 608.0 403.2 607.1 405.8 604.5 405.0 603.2 401.9 602.4 398.1 598.0 395.7 596.3 394.1 591.4 394.8 588.2 394.4 587.3 392.6 586.0 392.1 582.0 391.3 581.4 388.7 581.3 386.4 580.0 382.2 581.7 377.9 579.4 376.4 579.2 376.6 576.3 375.2 575.2 373.3 571.9 374.4 568.1 370.7 564.0 370.6 560.9 370.0 559.7 370.0 555.6 371.5 554.9 371.8 554.0 371.9 551.1 370.7 547.7 371.1 545.4 370.5 544.3 371.6 541.3 371.0 538.3 371.3 535.7 368.3 534.4 366.6 531.5 366.8 531.0 369.1 530.4 371.4 528.3 370.9 526.3 371.8 523.6 372.4 523.1 374.3 523.2 375.0 522.4 377.0 515.8 377.8 511.0 377.4 509.4 376.4 508.0 377.5 501.3 382.3 500.0 387.3 489.2 392.2 483.8 393.4 480.8 392.9 477.8 393.9 472.5 395.1 472.1 420.0 484.1 443.0 472.7Z"/><path class="rg" style="--i:13" data-n="Moquegua" d="M364.8 644.2 363.3 642.7 359.5 640.6 357.4 640.7 358.3 638.4 356.8 630.0 353.7 627.0 356.0 624.9 357.8 621.6 359.3 617.2 356.5 614.9 355.2 611.6 355.1 610.0 357.6 607.3 360.2 606.1 360.1 602.1 363.8 597.5 366.3 596.4 369.1 596.1 370.7 597.1 372.5 596.3 372.5 592.5 375.5 589.1 376.4 579.2 377.9 579.4 382.2 581.7 386.4 580.0 388.7 581.3 391.3 581.4 392.1 582.0 392.6 586.0 394.4 587.3 394.8 588.2 394.1 591.4 395.7 596.3 398.1 598.0 401.9 602.4 405.0 603.2 405.8 604.5 405.5 605.1 402.9 607.3 400.6 608.0 400.2 610.9 399.5 612.8 398.5 613.4 396.6 612.7 394.8 609.5 392.6 609.0 391.2 609.7 390.1 610.9 389.1 613.9 389.6 617.8 388.2 619.8 385.4 622.9 381.4 624.9 378.5 629.1 377.2 632.9 374.9 635.3 373.7 637.8 367.9 640.6 366.2 641.9 364.8 644.2Z"/><path class="rg" style="--i:14" data-n="Arequipa" d="M353.7 627.0 352.8 625.8 350.0 625.2 348.3 623.9 341.0 621.9 337.4 618.2 335.4 617.1 331.3 616.3 331.1 614.8 328.5 612.6 325.1 611.3 324.7 609.3 322.7 607.0 319.9 605.3 314.7 603.3 311.0 603.4 307.8 602.3 304.0 599.6 297.9 597.4 293.8 594.5 289.5 593.8 288.5 591.5 285.1 590.2 278.8 588.2 276.0 587.8 275.1 588.4 275.2 587.5 273.9 586.4 270.1 584.9 264.4 580.9 263.4 580.0 263.5 579.2 262.9 578.2 258.8 576.0 256.7 575.7 255.1 574.1 252.9 574.1 250.4 573.4 248.7 572.1 248.1 569.8 234.4 564.0 233.7 563.0 226.3 559.4 230.4 552.2 238.7 546.8 239.6 548.4 247.9 550.6 247.8 552.2 249.9 556.3 252.3 557.5 252.6 558.9 254.3 560.7 256.8 561.4 260.5 559.7 261.6 562.4 261.4 564.7 261.9 565.5 265.6 563.7 268.4 559.7 278.1 559.0 283.8 556.7 285.9 557.5 290.0 557.8 289.7 555.3 290.0 553.9 294.2 554.2 296.3 550.8 298.8 548.3 299.8 542.7 298.8 540.3 299.3 538.3 301.1 536.8 305.6 536.5 305.4 533.9 307.3 531.8 308.5 531.3 314.6 532.8 318.3 531.9 318.1 533.8 321.4 537.4 323.6 538.0 329.9 536.3 330.9 536.8 331.9 538.9 332.7 539.4 334.0 537.9 334.7 535.8 334.0 532.3 334.5 531.8 335.4 531.8 336.6 532.8 339.9 537.9 342.4 539.0 340.6 541.0 341.0 543.6 340.4 545.2 340.9 545.6 347.4 547.7 349.6 546.5 352.8 546.2 353.1 544.2 354.7 545.1 356.5 545.3 360.0 547.8 362.3 546.3 363.4 546.3 364.9 547.9 364.7 551.4 368.1 553.5 370.0 555.6 370.5 563.7 374.4 568.1 373.3 571.9 375.2 575.2 376.6 576.3 376.8 577.2 375.5 589.1 372.5 592.5 372.5 596.3 370.7 597.1 369.1 596.1 366.3 596.4 363.8 597.5 360.1 602.1 360.2 606.1 357.6 607.3 355.1 610.0 355.2 611.6 356.5 614.9 359.3 617.2 357.8 621.6 356.0 624.9 353.7 627.0Z"/><path class="rg" style="--i:15" data-n="Ica" d="M226.3 559.4 222.3 556.9 223.6 555.6 219.7 552.6 220.8 552.4 220.7 551.3 218.7 549.4 215.6 548.4 213.1 543.9 211.2 542.3 211.0 540.7 199.2 533.7 198.2 532.4 196.0 531.0 195.9 528.5 194.5 526.6 194.8 525.3 194.2 524.2 192.2 523.1 190.6 521.2 188.8 520.5 188.4 519.4 189.4 519.3 189.7 518.6 188.2 515.7 187.1 515.2 185.9 513.4 184.6 512.9 183.9 514.8 183.2 513.6 183.2 510.5 184.0 509.4 183.4 507.3 183.9 506.2 183.0 505.2 183.1 504.0 182.6 503.7 182.0 504.8 179.5 504.3 180.7 500.5 183.0 500.2 182.8 501.6 184.2 502.6 185.5 498.0 187.1 491.0 186.5 487.0 184.7 483.1 186.3 481.9 188.5 478.3 193.6 474.2 195.2 471.6 198.3 472.7 204.1 472.2 206.5 471.0 206.7 471.3 206.3 473.1 203.7 475.0 204.0 479.4 202.3 480.9 200.6 485.6 202.0 486.4 205.9 486.3 211.6 488.0 210.8 490.9 209.6 492.6 210.8 495.8 209.0 499.0 209.8 501.0 209.3 502.2 209.8 503.2 214.1 505.8 217.4 506.7 221.6 510.3 224.1 510.7 226.0 511.8 226.6 512.7 226.0 514.9 226.8 516.9 224.3 521.9 227.2 524.8 226.6 527.0 227.1 529.5 227.6 529.8 229.8 529.4 231.8 527.5 232.9 527.9 234.5 529.7 234.8 532.0 237.1 533.9 237.8 537.1 239.8 540.1 239.9 543.6 238.7 546.8 230.4 552.2 226.3 559.4ZM186.6 517.1 187.3 518.0 186.7 518.1 185.7 517.5 186.0 516.9 186.6 517.1Z"/><path class="rg" style="--i:16" data-n="Lima" d="M184.7 483.1 176.3 472.9 175.2 469.7 175.2 466.9 171.1 462.6 169.3 459.2 169.3 457.9 167.4 455.5 165.1 453.9 166.4 453.1 166.9 450.5 169.3 449.2 169.0 447.9 170.6 444.3 167.5 439.2 168.2 438.4 169.4 438.6 166.8 436.5 166.9 435.1 168.4 434.3 168.6 433.2 166.0 430.6 163.1 433.3 160.4 434.1 160.7 430.9 159.7 430.6 159.6 429.5 160.6 427.8 162.0 427.5 163.0 425.8 160.4 425.3 159.4 426.0 158.8 425.9 157.8 423.8 156.1 423.2 156.6 420.8 155.1 419.6 154.4 419.7 153.1 422.0 153.1 423.0 151.0 424.1 150.0 422.2 148.0 420.6 148.1 419.7 146.6 417.4 135.0 410.1 135.0 407.6 136.8 407.0 136.9 405.5 134.5 400.1 135.0 399.5 132.8 394.3 131.3 393.0 130.9 391.0 127.9 387.9 126.4 385.3 129.1 383.4 130.3 376.8 133.1 376.8 133.8 377.5 134.1 378.2 133.7 379.6 131.3 381.6 131.2 382.3 134.3 382.9 136.6 384.5 136.9 390.1 139.9 390.5 143.5 389.0 144.7 386.7 148.3 384.6 151.0 382.3 152.1 380.4 152.7 377.5 160.4 373.9 161.2 375.9 163.7 376.3 164.7 378.6 166.9 379.6 167.8 381.1 170.9 390.3 173.2 393.5 173.4 399.4 175.3 400.7 176.2 402.1 176.0 405.6 176.6 410.8 178.8 413.3 180.1 417.7 181.0 419.0 183.0 420.6 184.3 420.2 185.6 421.0 186.2 426.7 188.0 428.6 188.7 430.5 190.9 432.1 193.1 436.1 197.4 435.2 204.6 438.4 206.3 439.8 206.6 440.8 206.1 442.7 209.9 450.6 208.6 457.5 212.4 460.3 212.4 461.4 210.7 464.3 207.6 466.8 206.5 471.0 204.1 472.2 200.7 472.6 198.3 472.7 195.2 471.6 193.6 474.2 188.5 478.3 186.3 481.9 184.7 483.1Z"/><path class="rg" style="--i:17" data-n="Lima" d="M165.1 453.9 164.7 453.0 165.7 450.7 165.4 449.3 163.2 446.5 156.6 443.0 156.1 439.7 153.9 438.5 154.0 436.3 153.0 435.6 152.8 433.2 151.4 429.3 151.0 427.2 152.1 426.8 151.0 424.1 153.1 423.0 153.1 422.0 154.4 419.7 155.1 419.6 156.6 420.8 156.1 423.2 157.8 423.8 158.8 425.9 159.4 426.0 160.4 425.3 163.1 426.0 162.0 427.5 160.6 427.8 159.6 429.5 159.7 430.6 160.7 430.9 160.4 434.1 163.1 433.3 166.0 430.6 167.8 431.9 168.7 433.5 168.4 434.3 166.9 435.1 166.8 436.5 169.4 438.6 168.2 438.4 167.5 439.2 170.6 444.3 169.0 447.9 169.3 449.2 166.9 450.5 166.4 453.1 165.1 453.9Z"/><path class="rg" style="--i:18" data-n="Callao" d="M153.9 438.5 151.8 438.2 153.0 435.6 154.0 436.3 153.9 438.5ZM149.7 438.0 151.6 439.8 150.3 439.4 149.0 437.9 149.7 438.0Z"/><path class="rg" style="--i:19" data-n="Cusco" d="M273.5 458.6 271.0 455.7 270.6 454.2 269.5 453.8 269.5 451.7 265.9 445.6 270.8 445.4 276.1 443.8 277.4 442.6 278.4 439.7 278.5 436.3 282.1 430.9 282.7 426.8 282.5 425.8 280.7 424.5 276.0 423.3 275.7 422.7 280.7 418.8 282.7 415.8 284.6 411.3 296.7 409.9 298.1 409.2 300.3 406.8 302.3 410.7 303.3 411.4 306.3 412.9 310.0 412.2 311.1 413.6 315.0 415.1 316.6 414.7 321.0 411.5 325.0 410.2 326.4 410.9 329.1 410.9 328.4 415.0 323.1 425.6 321.9 431.5 322.5 435.1 323.5 436.4 329.4 439.8 331.8 446.0 335.6 447.2 336.4 448.0 339.4 455.7 338.6 459.6 340.7 463.6 342.7 464.8 349.3 466.9 353.8 466.9 359.4 469.5 364.8 471.0 370.4 474.3 382.5 476.1 386.9 475.8 388.0 474.8 386.1 473.1 386.4 472.0 393.9 472.5 392.9 477.8 393.4 480.8 392.2 483.8 387.3 489.2 382.3 500.0 377.5 501.3 376.4 508.0 377.4 509.4 377.8 511.0 377.0 515.8 375.0 522.4 374.3 523.2 372.4 523.1 371.8 523.6 370.9 526.3 371.4 528.3 369.1 530.4 366.8 531.0 366.6 531.5 368.3 534.4 371.3 535.7 371.0 538.3 371.6 540.8 370.5 543.2 371.1 545.4 370.7 546.4 370.7 547.7 371.9 551.1 371.8 554.0 371.5 554.9 370.0 555.6 368.1 553.5 364.7 551.4 364.9 547.9 363.4 546.3 362.3 546.3 360.0 547.8 356.5 545.3 354.7 545.1 353.1 544.2 352.8 546.2 349.6 546.5 347.4 547.7 340.9 545.6 340.4 545.2 341.0 543.6 340.6 541.0 342.4 539.0 339.9 537.9 336.6 532.8 335.4 531.8 334.5 531.8 334.0 532.3 334.7 535.8 334.0 537.9 332.7 539.4 330.3 536.4 323.6 538.0 320.5 536.9 318.1 533.8 318.5 530.1 317.8 527.3 322.2 523.7 326.0 522.3 327.3 519.9 331.2 516.1 332.6 511.6 332.6 505.3 330.2 500.6 325.9 496.6 323.6 496.6 321.5 495.4 320.3 493.1 314.1 491.8 307.0 487.3 304.2 487.0 303.4 485.8 301.3 485.9 299.5 487.0 298.3 486.9 296.6 488.1 294.7 487.0 294.0 487.5 292.2 486.8 289.3 484.5 285.4 479.1 283.3 477.9 281.8 475.9 280.0 474.9 280.5 473.9 279.8 471.1 280.2 470.1 279.2 469.3 276.3 460.5 274.3 458.2 273.7 457.9 273.5 458.6Z"/><path class="rg" style="--i:20" data-n="Ayacucho" d="M265.9 445.6 269.5 451.7 269.5 453.8 270.6 454.2 271.0 455.7 273.0 458.2 273.5 458.6 273.7 457.9 274.3 458.2 276.3 460.5 279.2 469.3 280.3 470.4 279.8 471.1 280.5 473.9 280.0 474.9 281.8 475.9 283.3 477.9 285.4 479.1 289.3 484.5 292.2 486.8 291.1 488.8 283.6 487.5 274.4 481.2 272.3 479.1 271.4 479.4 270.6 481.1 271.1 482.5 269.8 485.2 271.2 493.2 271.9 494.7 273.8 495.5 275.5 498.0 275.3 498.7 273.4 499.3 273.6 500.1 277.6 507.6 278.6 512.3 281.0 516.4 280.8 525.7 282.3 529.0 281.2 532.4 279.7 532.6 281.1 536.6 281.6 537.1 284.6 536.5 287.3 532.8 289.9 533.4 291.9 533.2 298.1 531.4 298.9 530.2 305.4 533.9 305.9 535.9 305.2 536.6 301.5 536.7 299.6 537.8 298.8 540.3 299.8 542.7 298.8 548.3 296.3 550.8 294.2 554.2 290.0 553.9 289.7 555.3 290.0 557.8 285.9 557.5 283.8 556.7 278.1 559.0 268.4 559.7 265.6 563.7 261.9 565.5 261.4 564.7 261.6 562.4 260.5 559.7 256.4 561.4 254.3 560.7 252.8 559.2 252.3 557.5 249.6 555.9 247.8 552.2 247.9 550.6 240.6 548.8 239.0 547.9 238.7 546.8 239.9 543.6 239.9 540.6 237.8 537.1 237.1 533.9 234.8 532.0 234.5 529.7 232.6 527.6 231.5 527.6 229.8 529.4 227.3 529.7 226.6 527.0 227.2 524.8 224.3 521.9 226.8 516.9 226.0 514.3 227.0 512.0 229.3 510.8 235.2 509.6 237.7 509.7 238.4 508.3 238.5 502.2 236.4 496.9 236.1 492.4 233.7 489.3 231.6 487.6 232.6 484.2 236.8 482.9 238.1 484.7 241.7 485.6 243.1 484.0 241.3 483.3 240.3 481.7 242.5 480.4 244.0 478.4 245.7 478.8 249.9 477.7 250.3 476.8 249.6 473.8 250.6 472.3 251.9 472.2 254.0 473.5 254.5 473.1 253.4 469.2 252.5 468.3 252.5 465.7 253.6 465.4 253.9 463.9 252.8 460.5 252.7 457.7 249.1 452.3 248.2 451.8 246.8 452.2 244.9 449.7 246.6 444.7 250.8 440.9 252.2 443.4 254.1 444.2 256.8 446.4 258.9 446.9 262.0 445.0 263.9 445.7 265.9 445.6Z"/><path class="rg" style="--i:21" data-n="Apurímac" d="M302.5 485.8 303.6 485.9 304.2 487.0 308.1 487.8 314.1 491.8 320.3 493.1 322.2 495.9 324.1 496.8 325.9 496.6 327.4 497.8 329.7 499.8 332.6 505.3 332.6 511.6 331.2 516.1 327.3 519.9 326.0 522.3 322.2 523.7 320.8 525.2 318.9 525.9 318.0 526.9 317.7 528.0 318.4 529.7 318.3 531.9 314.6 532.8 307.9 531.4 305.4 533.9 298.9 530.2 297.7 531.5 296.3 531.6 291.9 533.2 289.4 533.4 287.3 532.8 284.9 536.3 281.6 537.1 279.7 532.8 281.2 532.4 282.3 529.0 280.8 525.7 281.0 516.4 278.6 512.3 277.6 507.6 273.6 500.1 273.4 499.3 275.3 498.7 275.5 498.0 273.8 495.5 271.9 494.7 271.2 493.2 269.8 485.2 271.1 482.5 270.6 481.1 271.4 479.4 272.3 479.1 274.4 481.2 280.5 485.1 282.5 487.0 290.7 488.8 291.5 488.6 292.2 486.8 294.0 487.5 294.7 487.0 296.6 488.1 298.3 486.9 299.5 487.0 302.5 485.8Z"/><path class="rg" style="--i:22" data-n="Huancavelica" d="M250.8 440.9 246.9 444.3 244.9 449.7 246.8 452.2 248.2 451.8 249.1 452.3 252.7 457.7 252.8 460.5 253.9 463.9 253.6 465.4 252.5 465.7 252.5 468.3 253.4 469.2 254.5 473.1 254.0 473.5 251.9 472.2 250.6 472.3 249.6 473.8 250.3 476.8 249.9 477.7 245.7 478.8 244.0 478.4 242.5 480.4 240.3 481.7 241.3 483.3 243.1 484.0 241.7 485.6 238.4 484.9 237.1 483.1 236.1 482.9 232.7 484.0 231.6 487.6 233.7 489.3 236.3 493.0 236.4 496.9 238.8 504.1 238.0 509.4 229.3 510.8 227.0 512.0 226.6 512.7 224.6 510.9 221.6 510.3 217.4 506.7 214.1 505.8 212.6 504.8 209.8 503.2 209.3 502.2 209.8 501.0 209.0 499.0 210.8 495.8 209.6 492.6 210.8 490.9 211.6 488.0 205.9 486.3 201.0 486.2 200.6 484.8 202.3 480.9 204.0 479.4 203.7 475.0 206.3 473.1 207.6 466.8 211.6 463.0 212.4 461.4 212.7 458.8 214.3 457.8 215.0 456.0 218.1 452.8 220.1 452.0 222.4 449.6 224.6 449.1 223.2 446.2 225.4 445.1 226.9 442.0 226.7 440.4 225.0 438.5 224.8 437.2 226.8 434.8 228.6 436.6 230.6 437.3 233.9 436.6 236.7 437.0 238.5 436.6 239.5 435.2 240.4 435.0 242.8 435.4 245.0 437.0 246.3 437.0 250.8 440.9Z"/><path class="rg" style="--i:23" data-n="Huánuco" d="M240.4 313.9 244.5 314.4 245.8 315.5 246.4 317.4 246.1 318.9 242.7 321.2 242.2 326.4 240.4 330.1 240.7 333.8 239.0 340.4 239.6 342.5 245.4 351.0 237.4 354.8 229.6 356.1 224.8 355.4 216.5 359.1 211.4 359.9 207.1 359.7 202.5 360.8 200.2 362.8 199.5 366.3 201.7 375.5 200.4 376.7 195.4 378.9 192.3 377.2 185.1 376.7 183.1 374.3 179.6 373.0 173.3 373.4 170.2 377.3 166.9 379.6 164.7 378.6 163.7 376.3 161.5 376.1 160.8 375.4 160.3 372.0 161.4 367.8 158.4 365.7 158.0 361.7 155.4 355.3 158.9 350.7 159.4 347.7 163.0 339.3 167.0 335.3 167.3 333.8 165.8 332.5 162.2 330.9 161.1 329.3 158.5 328.4 155.4 324.8 153.2 324.0 151.2 322.1 150.4 320.7 150.4 318.9 147.5 315.8 146.6 310.8 152.1 310.8 156.3 309.5 157.1 310.0 158.2 313.3 161.7 313.6 163.1 311.6 166.1 311.0 178.6 313.2 180.3 312.2 180.8 306.4 182.4 305.3 183.3 306.6 183.6 308.5 186.2 312.3 187.3 316.7 188.3 317.8 189.7 318.1 190.7 317.3 193.1 313.5 195.2 312.1 194.4 314.8 194.6 316.2 196.9 320.3 197.7 327.5 199.4 328.7 200.5 330.6 200.7 334.2 201.5 336.4 203.4 338.1 205.5 341.8 207.2 342.2 209.2 341.4 213.5 337.8 218.5 335.9 220.6 333.2 223.4 327.6 227.6 321.8 236.0 315.3 240.4 313.9Z"/><path class="rg" style="--i:24" data-n="Pasco" d="M245.4 351.0 247.5 354.3 248.9 358.1 249.0 362.0 251.7 367.7 251.3 374.4 253.9 381.5 257.7 383.3 258.6 384.5 258.3 385.3 254.2 387.4 248.0 393.3 246.5 394.1 240.2 394.2 235.4 392.6 232.3 390.1 228.1 388.1 226.9 388.3 224.6 390.0 217.9 391.9 213.2 392.2 202.2 395.5 193.8 395.6 191.9 394.2 189.1 396.2 187.3 396.7 183.8 396.2 183.6 402.6 179.1 403.3 176.2 403.1 175.8 401.2 173.4 399.4 173.2 393.5 170.9 390.3 170.3 387.5 166.9 379.6 170.2 377.3 172.9 373.7 175.3 373.0 181.1 373.3 183.4 374.5 185.1 376.7 192.3 377.2 195.4 378.9 200.4 376.7 201.7 375.5 199.5 366.3 200.2 362.8 202.5 360.8 207.1 359.7 211.4 359.9 216.5 359.1 224.8 355.4 229.6 356.1 237.4 354.8 245.4 351.0Z"/><path class="rg" style="--i:25" data-n="Junín" d="M284.6 411.3 282.7 415.8 280.7 418.8 275.7 422.7 276.0 423.3 280.7 424.5 282.5 425.8 282.7 426.8 282.1 430.9 278.7 435.9 278.3 440.5 276.4 443.6 269.5 445.5 263.9 445.7 261.8 445.0 259.6 446.7 258.3 446.9 256.4 446.3 254.1 444.2 252.2 443.4 250.8 440.9 246.6 437.2 245.0 437.0 242.8 435.4 239.8 435.0 238.7 436.4 236.7 437.0 233.9 436.6 230.6 437.3 228.6 436.6 226.8 434.8 224.7 437.5 226.7 440.4 226.8 442.4 225.1 445.4 223.2 446.2 224.6 449.1 222.4 449.6 220.1 452.0 218.1 452.8 212.6 459.2 212.4 460.3 208.6 457.5 209.9 450.6 206.1 442.7 206.6 440.8 206.3 439.8 204.6 438.4 197.4 435.2 193.4 436.2 192.6 435.7 190.9 432.1 188.7 430.5 188.0 428.6 186.2 426.7 185.4 420.7 184.3 420.2 183.0 420.6 181.0 419.0 180.1 417.7 178.8 413.3 176.6 410.8 176.2 403.1 179.1 403.3 183.6 402.6 183.8 396.2 187.3 396.7 189.1 396.2 191.9 394.2 193.8 395.6 202.2 395.5 213.2 392.2 217.9 391.9 224.6 390.0 226.9 388.3 228.1 388.1 230.4 389.0 236.8 393.3 240.2 394.2 246.5 394.1 247.7 399.3 248.6 400.8 250.9 401.4 254.0 400.1 257.5 400.0 263.4 398.6 267.1 398.5 268.6 397.4 273.1 390.9 278.1 392.6 281.2 397.0 282.5 399.8 281.8 406.6 283.1 409.8 284.6 411.3Z"/></g><path class="route-base" d="M29.1 190.4 Q 34 222 57.2 247.3 Q 66 276 85.9 295.6 Q 104 288 104.4 261.4"/><path id="rutaNorte" class="route-draw" pathLength="1" d="M29.1 190.4 Q 34 222 57.2 247.3 Q 66 276 85.9 295.6 Q 104 288 104.4 261.4"/><path class="route-dash" d="M29.1 190.4 Q 34 222 57.2 247.3 Q 66 276 85.9 295.6 Q 104 288 104.4 261.4"/><g class="stop"><circle cx="57.2" cy="247.3" r="3.2"/><text x="50.2" y="250.8">Chiclayo</text></g><g class="truck"><g transform="translate(-20 -21) scale(1.25)"><ellipse cx="17" cy="18.5" rx="17" ry="1.8" fill="#0A0A0A" opacity=".18"/><rect x="0.5" y="2.5" width="21" height="12" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="1.2"/><path d="M21.5 5.5h6.2l5 5V14.5h-11.2z" fill="#FFFFFF" stroke="#0A0A0A" stroke-width="1.2"/><path d="M23.3 7h3.8l3.3 3.3h-7.1z" fill="#0A0A0A"/><rect x="0.5" y="10" width="32.2" height="2.2" fill="#E30613"/><rect x="3" y="4.5" width="7" height="4" fill="#E30613"/><circle cx="7" cy="15.5" r="2.8" fill="#0A0A0A"/><circle cx="7" cy="15.5" r="1" fill="#FFFFFF"/><circle cx="26" cy="15.5" r="2.8" fill="#0A0A0A"/><circle cx="26" cy="15.5" r="1" fill="#FFFFFF"/></g><animateMotion dur="10s" repeatCount="indefinite" keyPoints="0;1;0" keyTimes="0;0.5;1" calcMode="linear"><mpath href="#rutaNorte"/></animateMotion></g><g class="pin" data-sede="Piura" transform="translate(29.1 190.4)"><g class="pin-in" style="--k:0"><circle class="pulse" r="6"/><circle class="halo" r="10"/><circle class="dot" r="5.5"/><text x="12" y="4" text-anchor="start">Piura</text></g></g><g class="pin" data-sede="Trujillo" transform="translate(85.9 295.6)"><g class="pin-in" style="--k:1"><circle class="pulse" r="6"/><circle class="halo" r="10"/><circle class="dot" r="5.5"/><text x="-11" y="15" text-anchor="end">Trujillo</text></g></g><g class="pin" data-sede="Cajamarca" transform="translate(104.4 261.4)"><g class="pin-in" style="--k:2"><circle class="pulse" r="6"/><circle class="halo" r="10"/><circle class="dot" r="5.5"/><text x="12" y="4" text-anchor="start">Cajamarca</text></g></g></svg>
+          <div class="map-tools" role="group" aria-label="Vista del mapa">
+            <button type="button" class="on" data-view="peru">Todo el Perú</button>
+            <button type="button" data-view="norte">Zona norte</button>
+          </div>
+          <div class="maptip" hidden></div>
+          <div class="map-info" aria-live="polite"></div>
+          <div class="map-live"><i></i>Unidad móvil en ruta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="roadTpl">
+  <div class="road" aria-hidden="true">
+    <div class="road-txt"><div class="wrap"><span><span class="mark"></span>Piura</span><span><span class="mark"></span>Chiclayo</span><span><span class="mark"></span>Trujillo</span><span><span class="mark"></span>Cajamarca</span></div></div>
+    <svg class="van" viewBox="0 0 170 74">
+      <g class="body">
+        <path d="M4 12h100v42H4z" fill="#FFFFFF"/>
+        <path d="M104 20h28l26 22v12h-54z" fill="#FFFFFF"/>
+        <path d="M109 25h20l18 16h-38z" fill="#0A0A0A"/>
+        <rect x="4" y="42" width="154" height="6" fill="#E30613"/>
+        <path d="M14 18h22v12H14z" fill="#E30613"/>
+        <path d="M30 24h6v6h-6z" fill="#FFFFFF"/>
+        <text x="44" y="30" font-family="Arial,sans-serif" font-weight="700" font-size="11" fill="#0A0A0A">LABORATORIO MÓVIL</text>
+        <rect x="154" y="44" width="5" height="4" fill="#FFD100"/>
+        <rect x="0" y="50" width="8" height="4" fill="#0A0A0A"/>
+      </g>
+      <g class="wh"><circle cx="32" cy="58" r="11" fill="#0A0A0A"/><circle cx="32" cy="58" r="4.5" fill="#FFFFFF"/><rect x="31" y="48" width="2" height="20" fill="#5B5957"/></g>
+      <g class="wh"><circle cx="132" cy="58" r="11" fill="#0A0A0A"/><circle cx="132" cy="58" r="4.5" fill="#FFFFFF"/><rect x="131" y="48" width="2" height="20" fill="#5B5957"/></g>
+    </svg>
+  </div>
+</template>
+
+<script>
+(function(){
+  var ROUTES=['inicio','nosotros','ensayos','movil','metrologia','cobertura','contacto'];
+  var TITLES={inicio:'Laboratorio DINO Pacasmayo',nosotros:'Nosotros · DINO Pacasmayo',ensayos:'Ensayos · DINO Pacasmayo',movil:'Laboratorio Móvil · DINO Pacasmayo',metrologia:'Metrología · DINO Pacasmayo',cobertura:'Cobertura · DINO Pacasmayo',contacto:'Cotización · DINO Pacasmayo'};
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  var REDUCED=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var pages=$$('.page'), mnav=$('#mnav'), burger=$('#burger');
+  var pendingSvc=null, pendingItem=null;
+  function store(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+  /* ---------- Plantillas: carretera y franja ---------- */
+  $$('[data-road]').forEach(function(h){h.appendChild($('#roadTpl').content.cloneNode(true))});
+  var MQ=['Concreto','Agregados','Cemento','Suelos','Albañilería','Ensayos químicos','Metrología','Laboratorio móvil'];
+  $$('[data-mq]').forEach(function(t){var html=MQ.map(function(m){return '<span>'+m+'<span class="mark mark-w"></span></span>'}).join('');t.innerHTML=html+html});
+
+  /* ---------- Router ---------- */
+  function go(r,noScroll){
+    if(ROUTES.indexOf(r)<0) r='inicio';
+    pages.forEach(function(p){
+      var on=p.dataset.page===r;
+      if(on){p.hidden=false;p.classList.remove('page');void p.offsetWidth;p.classList.add('page')}
+      else p.hidden=true;
+    });
+    $$('[data-r]').forEach(function(a){var on=a.dataset.r===r;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+    closeMenu();
+    if(!noScroll) window.scrollTo({top:0,behavior:'auto'});
+    document.title=TITLES[r];
+    if(r==='contacto') applyPending();
+    store('dino-route',r);
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href^="#"]');
+    if(!a) return;
+    var r=a.getAttribute('href').slice(1);
+    if(ROUTES.indexOf(r)<0) return;
+    if(a.dataset.svc) pendingSvc=a.dataset.svc;
+    e.preventDefault();
+    if(location.hash.slice(1)!==r){try{history.pushState(null,'','#'+r)}catch(err){}}
+    go(r);
+  });
+  window.addEventListener('hashchange',function(){go(location.hash.slice(1))});
+  window.addEventListener('popstate',function(){go(location.hash.slice(1)||'inicio')});
+
+  /* ---------- Menú móvil ---------- */
+  function closeMenu(){mnav.hidden=true;burger.setAttribute('aria-expanded','false');burger.setAttribute('aria-label','Abrir menú');document.body.style.overflow=''}
+  burger.addEventListener('click',function(){
+    var open=mnav.hidden;
+    mnav.hidden=!open;burger.setAttribute('aria-expanded',String(open));
+    burger.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');
+    document.body.style.overflow=open?'hidden':'';
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!mnav.hidden)closeMenu()});
+
+  /* ---------- Scroll: cabecera, barra de progreso, volver arriba ---------- */
+  var hdr=$('#hdr'), totop=$('#totop'), bar=$('#scrollbar'), ticking=false;
+  function onScroll(){
+    var y=window.scrollY, max=document.documentElement.scrollHeight-window.innerHeight;
+    hdr.classList.toggle('scrolled',y>8); totop.hidden=y<700;
+    bar.style.transform='scaleX('+(max>0?Math.min(1,y/max):0)+')'; ticking=false;
+  }
+  window.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(onScroll)}},{passive:true});
+  totop.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+
+  /* ---------- Carrusel ---------- */
+  var hero=$('#hero'), slides=$$('.hero-slide'), dots=$$('.hero-dot'), cur=0, timer=null;
+  function show(i){
+    cur=(i+slides.length)%slides.length;
+    slides.forEach(function(s,k){s.classList.toggle('on',k===cur)});
+    dots.forEach(function(d,k){var on=k===cur;d.classList.remove('on');void d.offsetWidth;if(on)d.classList.add('on');d.setAttribute('aria-selected',String(on))});
+    restart();
+  }
+  function restart(){clearInterval(timer);timer=setInterval(function(){if(!hero.classList.contains('paused')&&!document.hidden)show(cur+1)},6000)}
+  dots.forEach(function(d){d.addEventListener('click',function(){show(+d.dataset.i)})});
+  $('#prev').addEventListener('click',function(){show(cur-1)});
+  $('#next').addEventListener('click',function(){show(cur+1)});
+  hero.addEventListener('mouseenter',function(){hero.classList.add('paused')});
+  hero.addEventListener('mouseleave',function(){hero.classList.remove('paused')});
+  var tx=null;
+  hero.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  hero.addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));tx=null});
+  restart();
+
+  /* ---------- Contadores (al entrar en pantalla) ---------- */
+  function countEl(el){
+    var to=+el.dataset.to, t0=null, dur=to>100?1600:1100;
+    function step(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=Math.round(to*e);if(p<1)requestAnimationFrame(step)}
+    requestAnimationFrame(step);
+  }
+  if(!REDUCED&&'IntersectionObserver' in window){
+    var cio=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){countEl(en.target);cio.unobserve(en.target)}})},{threshold:.6});
+    $$('.count-up').forEach(function(el){cio.observe(el)});
+  }
+
+  /* ---------- Mapa de cobertura ---------- */
+  var SEDES={
+    Trujillo:{reg:'La Libertad',tag:'Sede principal',addr:'Calle 2, Mz. B1, Lt. 13, Parque Industrial – La Esperanza, Trujillo',q:'Parque Industrial La Esperanza Trujillo'},
+    Piura:{reg:'Piura',tag:'Sede',addr:'Carretera Piura–Paita km 3, Fnd. Sta. Martha (Ex Fnd. Coscobamba), Piura',q:'Carretera Piura Paita km 3 Piura'},
+    Cajamarca:{reg:'Cajamarca',tag:'Sede',addr:'Siguispampa S/N, Cas. La Banda (Predio Siguispampa), Llacanora',q:'Siguispampa Llacanora Cajamarca'}
+  };
+  function status(cls){return cls.indexOf('core')>=0?'Sede acreditada':cls.indexOf('near')>=0?'Cobertura frecuente':'Atención con laboratorio móvil'}
+  var covTpl=$('#covTpl');
+  $$('[data-cover]').forEach(function(host,idx){
+    host.appendChild(covTpl.content.cloneNode(true));
+    var root=host, stage=$('.map-stage',root), svg=$('.pe-map',root), tip=$('.maptip',root), info=$('.map-info',root);
+    var rid='rutaNorte'+idx; $('#rutaNorte',svg).id=rid; svg.querySelector('mpath').setAttribute('href','#'+rid);
+    var pinPos={}; $$('.pin',svg).forEach(function(p){var m=p.getAttribute('transform').match(/translate\(([-\d.]+) ([-\d.]+)\)/);pinPos[p.dataset.sede]=[+m[1],+m[2]]});
+    if(REDUCED){var am=svg.querySelector('animateMotion');if(am)am.remove();$('.truck',svg).setAttribute('transform','translate('+pinPos.Trujillo.join(' ')+')')}
+    var FULL=svg.getAttribute('viewBox').split(' ').map(Number), NORTH=[-14,96,250,366], vb=FULL.slice(), anim=null;
+    var ASP=FULL[3]/FULL[2];
+    function setView(target,label){
+      $$('.map-tools button',root).forEach(function(b){b.classList.toggle('on',b.dataset.view===label)});
+      cancelAnimationFrame(anim);var from=vb.slice(),t0=null,dur=REDUCED?1:850;
+      function step(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/dur),e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+        vb=from.map(function(v,i){return v+(target[i]-v)*e});svg.setAttribute('viewBox',vb.join(' '));if(p<1)anim=requestAnimationFrame(step)}
+      anim=requestAnimationFrame(step);
+    }
+    $$('.map-tools button',root).forEach(function(b){b.addEventListener('click',function(){setView(b.dataset.view==='norte'?NORTH:FULL,b.dataset.view)})});
+    function renderInfo(name){
+      var s=SEDES[name];
+      info.classList.remove('swap');void info.offsetWidth;info.classList.add('swap');
+      info.innerHTML='<span class="mi-k"><span class="mark"></span>'+s.tag+' · '+s.reg+'</span><b>'+name+'</b><p>'+s.addr+'</p><p>Ensayos acreditados · INACAL LE-214</p>'+
+        '<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.q)+'" target="_blank" rel="noopener">Cómo llegar <svg width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a>';
+    }
+    function pick(name,zoom){
+      $$('.sede-btn',root).forEach(function(b){b.classList.toggle('on',b.dataset.sede===name)});
+      $$('.pin',svg).forEach(function(p){p.classList.toggle('on',p.dataset.sede===name)});
+      $$('.rg',svg).forEach(function(r){r.classList.toggle('sel',r.dataset.n===SEDES[name].reg)});
+      renderInfo(name);
+      if(zoom){var c=pinPos[name],w=190,h=w*ASP;setView([c[0]-w*.45,c[1]-h*.5,w,h],'')}
+    }
+    $$('.sede-btn',root).forEach(function(b){b.addEventListener('click',function(){pick(b.dataset.sede,true)})});
+    $$('.pin',svg).forEach(function(p){p.addEventListener('click',function(){pick(p.dataset.sede,true)})});
+    pick('Trujillo',false);
+    function place(e,html){var r=stage.getBoundingClientRect();tip.innerHTML=html;tip.hidden=false;
+      var x=Math.max(90,Math.min(r.width-90,e.clientX-r.left));tip.style.left=x+'px';tip.style.top=(e.clientY-r.top)+'px'}
+    svg.addEventListener('mousemove',function(e){
+      var rg=e.target.closest('.rg'), pin=e.target.closest('.pin');
+      if(pin){place(e,'<b>'+pin.dataset.sede+'</b>Sede · clic para ver detalle');return}
+      if(rg){place(e,'<b>'+esc(rg.dataset.n)+'</b>'+status(rg.getAttribute('class')));return}
+      tip.hidden=true;
+    });
+    svg.addEventListener('mouseleave',function(){tip.hidden=true});
+    if(!REDUCED&&'IntersectionObserver' in window){
+      var r0=stage.getBoundingClientRect();
+      if(!(r0.top<window.innerHeight&&r0.bottom>0&&r0.height>0)){
+        stage.classList.add('pre');
+        var mio=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){
+          stage.classList.add('entering');requestAnimationFrame(function(){stage.classList.remove('pre')});
+          setTimeout(function(){stage.classList.remove('entering')},2600);mio.disconnect()}})},{threshold:.3});
+        mio.observe(stage);
+      }
+    }
+  });
+
+  /* ---------- Catálogo de ensayos ---------- */
+  var TESTS=[
+    {m:'Concreto',n:'Resistencia a la compresión',d:'Probetas cilíndricas según ASTM C39 y NTP 339.034.',b:'ac'},
+    {m:'Concreto',n:'Durabilidad del concreto',d:'Evaluación del desempeño en el tiempo.'},
+    {m:'Concreto',n:'Concreto fresco y endurecido',d:'Propiedades en estado fresco y endurecido.'},
+    {m:'Concreto',n:'Permeabilidad bajo presión de agua',d:'Penetración de agua en el concreto.',b:'es'},
+    {m:'Concreto',n:'Módulo de elasticidad',d:'Según normas ASTM y UNE.',b:'es'},
+    {m:'Concreto',n:'Expansión del concreto',d:'Cambios de volumen en el concreto.',b:'es'},
+    {m:'Concreto',n:'Extracción y evaluación de testigos',d:'Muestras extraídas de estructuras.',b:'es'},
+    {m:'Concreto',n:'Diseños especiales de mezclas',d:'Dosificaciones a la medida del proyecto.',b:'es'},
+    {m:'Agregados',n:'Caracterización física',d:'Granulometría, peso específico y absorción.'},
+    {m:'Agregados',n:'Caracterización mecánica',d:'Resistencia y desgaste del agregado.'},
+    {m:'Agregados',n:'Calidad de agregados',d:'Cumplimiento de especificaciones.'},
+    {m:'Cemento',n:'Propiedades físicas',d:'Finura, fraguado y consistencia.'},
+    {m:'Cemento',n:'Propiedades mecánicas',d:'Resistencia a la compresión en morteros.'},
+    {m:'Suelos',n:'Clasificación de suelos',d:'Identificación y clasificación del material.'},
+    {m:'Suelos',n:'Capacidad portante',d:'Resistencia del terreno para cimentaciones.'},
+    {m:'Suelos',n:'Compactación',d:'Densidad y humedad óptima.'},
+    {m:'Albañilería',n:'Unidades de albañilería',d:'Ladrillos y bloques.'},
+    {m:'Albañilería',n:'Morteros',d:'Propiedades de morteros de asentado.'},
+    {m:'Albañilería',n:'Prismas y muretes',d:'Resistencia de elementos de albañilería.'},
+    {m:'Químicos',n:'Análisis químicos',d:'Composición de materiales de construcción.'},
+    {m:'Químicos',n:'Evaluación de durabilidad',d:'Agentes agresivos y ataque químico.'},
+    {m:'Químicos',n:'Caracterización química',d:'Propiedades químicas del material.'}
+  ];
+  var MATS=['Todos','Concreto','Agregados','Cemento','Suelos','Albañilería','Químicos'];
+  var fMat='Todos', fQ='';
+  var filters=$('#filters'), search=$('.search',filters), cat=$('#cat'), count=$('#count');
+  MATS.forEach(function(m){var b=document.createElement('button');b.type='button';b.className='fchip'+(m==='Todos'?' on':'');b.textContent=m;b.setAttribute('aria-pressed',m==='Todos'?'true':'false');
+    b.addEventListener('click',function(){fMat=m;$$('.fchip',filters).forEach(function(x){var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',String(on))});renderCat()});
+    filters.insertBefore(b,search)});
+  $('#q').addEventListener('input',function(e){fQ=e.target.value.trim().toLowerCase();renderCat()});
+  function renderCat(){
+    var list=TESTS.filter(function(t){return (fMat==='Todos'||t.m===fMat)&&(!fQ||(t.n+' '+t.d+' '+t.m).toLowerCase().indexOf(fQ)>=0)});
+    count.textContent=list.length+(list.length===1?' ensayo':' ensayos');
+    if(!list.length){cat.innerHTML='<div class="empty">No encontramos ese ensayo. Escríbenos y lo evaluamos como ensayo especial.</div>';return}
+    cat.innerHTML=list.map(function(t,i){
+      var badge=t.b==='ac'?'<span class="badge badge-ac">Acreditado</span>':t.b==='es'?'<span class="badge badge-es">Especial</span>':'';
+      return '<article class="test" style="animation-delay:'+Math.min(i*35,350)+'ms"><div class="test-top"><span class="test-mat">'+esc(t.m)+'</span>'+badge+'</div><h3>'+esc(t.n)+'</h3><p>'+esc(t.d)+'</p>'+
+        '<button type="button" data-ask="'+esc(t.n)+'">Cotizar <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></button></article>';
+    }).join('');
+  }
+  cat.addEventListener('click',function(e){var b=e.target.closest('[data-ask]');if(!b)return;pendingSvc='ensayos';pendingItem=b.dataset.ask;try{history.pushState(null,'','#contacto')}catch(err){}go('contacto')});
+  renderCat();
+
+  /* ---------- Metrología: modalidad ---------- */
+  var CAL={
+    lab:[['Recepción','Verificación inicial e identificación.'],['Calibración','Procedimiento según norma.'],['Evaluación','Comparación con especificaciones.'],['Certificado','Resultados trazables.'],['Entrega','Equipo listo para su uso.']],
+    situ:[['Planificación','Alcance y condiciones en sitio.'],['Desplazamiento','Equipo técnico y patrones.'],['Calibración','Según condiciones de operación.'],['Evaluación','Verificación de cumplimiento.'],['Certificado','Informe técnico trazable.']]
+  };
+  var calSteps=$('#calSteps');
+  function renderCal(mode){
+    $$('.seg button').forEach(function(b){var on=b.dataset.mode===mode;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
+    calSteps.innerHTML=CAL[mode].map(function(s,i){return '<div class="step rise" style="animation-delay:'+(i*80)+'ms"><span class="step-n">'+(i+1)+'</span><h3>'+s[0]+'</h3><p>'+s[1]+'</p></div>'}).join('');
+  }
+  $$('.seg button').forEach(function(b){b.addEventListener('click',function(){renderCal(b.dataset.mode)})});
+  renderCal('lab');
+
+  /* ---------- Formulario por pasos ---------- */
+  var ITEMS={
+    ensayos:TESTS.map(function(t){return t.m+' · '+t.n}).concat(['Otro ensayo']),
+    movil:['Extracción de diamantinas','Carbonatación','Esclerometría','Control de concreto fresco','Ensayos de suelos en campo','Calibración in situ','Otro'],
+    metrologia:['Balanzas','Pesas','Instrumentos dimensionales','Termómetros / termopares','Hornos y estufas','Termohigrómetros','Máquinas universales','Prensas de compresión','Celdas de carga','Otro']
+  };
+  var form=$('#form'), stepN=1, fsteps=$$('.fstep',form), psteps=$$('.pstep'), itemSel=$('#f-item'), obraWrap=$('#obraWrap');
+  var FIELDS=['f-item','f-sede','f-nombre','f-empresa','f-ruc','f-tel','f-mail','f-cant','f-fecha','f-obra','f-det'];
+  function svc(){var c=$('input[name="servicio"]:checked');return c?c.value:'ensayos'}
+  function fillItems(keep){
+    var v=keep||itemSel.value;
+    itemSel.innerHTML='<option value="">Selecciona una opción</option>'+ITEMS[svc()].map(function(o){return '<option>'+esc(o)+'</option>'}).join('');
+    if(v){var opt=$$('option',itemSel).find(function(o){return o.value&&(o.value===v||o.value.indexOf(v)>=0)});if(opt)itemSel.value=opt.value}
+    obraWrap.hidden=svc()!=='movil';
+  }
+  $$('input[name="servicio"]').forEach(function(r){r.addEventListener('change',function(){fillItems();saveDraft()})});
+  function applyPending(){
+    if(pendingSvc){var r=$('#svc-'+pendingSvc);if(r)r.checked=true;fillItems(pendingItem||'');pendingSvc=null;pendingItem=null;setStep(1)}
+  }
+  var today=new Date();today.setHours(0,0,0,0);
+  function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  $('#f-fecha').min=iso(today);
+
+  function setErr(id,msg){var f=$('#'+id).closest('.fld');f.classList.remove('err');if(msg){void f.offsetWidth;f.classList.add('err')}var m=$('.msg',f);if(m)m.textContent=msg||''}
+  function val(id){return $('#'+id).value.trim()}
+  function validate(n){
+    var ok=true;
+    function chk(id,cond,msg){setErr(id,cond?'':msg);if(!cond&&ok){ok=false;$('#'+id).focus()}}
+    if(n===1){chk('f-item',!!val('f-item'),'Elige el ensayo o equipo.')}
+    if(n===2){
+      var tel=val('f-tel').replace(/\D/g,'');
+      chk('f-nombre',val('f-nombre').length>=3,'Escribe tu nombre completo.');
+      chk('f-ruc',!val('f-ruc')||/^(10|15|17|20)\d{9}$/.test(val('f-ruc')),'El RUC tiene 11 dígitos y empieza en 10 o 20.');
+      chk('f-tel',/^9\d{8}$/.test(tel.slice(-9))&&tel.length>=9,'Ingresa un celular de 9 dígitos que empiece en 9.');
+      chk('f-mail',/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val('f-mail')),'Revisa el correo, por ejemplo nombre@empresa.com.');
+    }
+    if(n===3){
+      chk('f-cant',!val('f-cant')||+val('f-cant')>=1,'La cantidad debe ser 1 o más.');
+      chk('f-fecha',!val('f-fecha')||val('f-fecha')>=iso(today),'Elige una fecha desde hoy.');
+      if(svc()==='movil') chk('f-obra',val('f-obra').length>=3,'Indica dónde está la obra.');
+      var okBox=$('#f-ok').checked; setErr('f-ok',okBox?'':'Debes aceptar para enviar la solicitud.'); if(!okBox) ok=false;
+    }
+    return ok;
+  }
+  function setStep(n){
+    stepN=n;
+    fsteps.forEach(function(s){s.hidden=+s.dataset.step!==n});
+    psteps.forEach(function(p,i){p.classList.toggle('on',i===n-1);p.classList.toggle('done',i<n-1)});
+    $('#back').hidden=n===1; $('#nextStep').hidden=n===3; $('#send').hidden=n!==3;
+  }
+  function toForm(){window.scrollTo({top:$('.formcard').getBoundingClientRect().top+window.scrollY-110,behavior:REDUCED?'auto':'smooth'})}
+  $('#nextStep').addEventListener('click',function(){if(validate(stepN)){setStep(stepN+1);toForm()}});
+  $('#back').addEventListener('click',function(){setStep(stepN-1)});
+  FIELDS.forEach(function(id){var el=$('#'+id);el.addEventListener('input',function(){if(el.closest('.fld').classList.contains('err'))setErr(id,'');saveDraft()})});
+  $('#f-ok').addEventListener('change',function(){if(this.checked)setErr('f-ok','')});
+  $('#f-det').addEventListener('input',function(){$('#detCount').textContent=this.value.length+' / 600'});
+
+  function saveDraft(){var d={svc:svc()};FIELDS.forEach(function(id){d[id]=$('#'+id).value});store('dino-draft',d)}
+  function loadDraft(){var d=store('dino-draft');if(!d)return;var r=$('#svc-'+d.svc);if(r)r.checked=true;fillItems(d['f-item']);FIELDS.forEach(function(id){if(id!=='f-item'&&d[id]!=null)$('#'+id).value=d[id]});$('#detCount').textContent=$('#f-det').value.length+' / 600'}
+
+  var SVCNAME={ensayos:'Laboratorio de Ensayos',movil:'Laboratorio Móvil',metrologia:'Metrología (calibración)'};
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!validate(3))return;
+    var code='COT-'+today.getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000);
+    var rows=[['Servicio',SVCNAME[svc()]],['Ensayo / equipo',val('f-item')],['Sede',val('f-sede')],['Nombre',val('f-nombre')],['Empresa',val('f-empresa')||'—'],['RUC',val('f-ruc')||'—'],['Teléfono',val('f-tel')],['Correo',val('f-mail')],['Cantidad',val('f-cant')||'—'],['Fecha requerida',val('f-fecha')||'—']];
+    if(svc()==='movil')rows.push(['Obra',val('f-obra')]);
+    if(val('f-det'))rows.push(['Descripción',val('f-det')]);
+    var done=$('#done');
+    done.innerHTML='<div class="done-box"><span class="done-ic"><svg width="32" height="32" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M6 15l6 6 12-13"/></svg></span>'+
+      '<h2 class="h-md">Solicitud lista</h2><span class="code">'+code+'</span>'+
+      '<dl class="summary">'+rows.map(function(r){return '<dt>'+r[0]+'</dt><dd>'+esc(r[1])+'</dd>'}).join('')+'</dl>'+
+      '<p class="note">Vista previa: el formulario aún no está conectado al sistema de control del área.</p>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:12px"><button type="button" class="btn btn-ink" id="again">Nueva solicitud</button><a class="btn btn-line-dark" href="#inicio">Volver al inicio</a></div></div>';
+    form.hidden=true;$('#progress').hidden=true;done.hidden=false;
+    try{localStorage.removeItem('dino-draft')}catch(err){}
+    $('#again').addEventListener('click',function(){form.reset();fillItems('');setStep(1);done.hidden=true;form.hidden=false;$('#progress').hidden=false;$('#detCount').textContent='0 / 600'});
+    toForm();
+  });
+
+  /* ---------- Copiar ---------- */
+  var toastT;
+  function toast(t){var old=$('.toast');if(old)old.remove();var d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(function(){d.remove()},2200)}
+  $$('.copy').forEach(function(b){b.addEventListener('click',function(){
+    var txt=b.dataset.copy;
+    function ok(){b.classList.add('ok');b.textContent='Copiado';toast('Copiado: '+txt);setTimeout(function(){b.classList.remove('ok');b.textContent='Copiar'},1800)}
+    function fallback(){var s=b.previousElementSibling;var r=document.createRange();r.selectNodeContents(s);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);toast('Texto seleccionado: cópialo con Ctrl+C')}
+    try{navigator.clipboard.writeText(txt).then(ok,fallback)}catch(e){fallback()}
+  })});
+
+  /* ---------- Arranque ---------- */
+  fillItems('');loadDraft();setStep(1);
+  var start=location.hash.slice(1);
+  go(ROUTES.indexOf(start)>=0?start:'inicio',true);
+  onScroll();
+})();
+</script>
+
+</body></html>
